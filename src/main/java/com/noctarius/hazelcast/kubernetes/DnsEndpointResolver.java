@@ -16,6 +16,7 @@
  */
 package com.noctarius.hazelcast.kubernetes;
 
+import com.hazelcast.config.NetworkConfig;
 import com.hazelcast.logging.ILogger;
 import com.hazelcast.logging.Logger;
 import com.hazelcast.nio.Address;
@@ -63,8 +64,7 @@ final class DnsEndpointResolver extends HazelcastKubernetesDiscoveryStrategy.End
                 if (inetAddress == null) {
                     continue;
                 }
-
-                int port = srv.getPort();
+                int port = getHazelcastPort(srv.getPort());
 
                 Address address = new Address(inetAddress, port);
                 discoveredNodes.add(new SimpleDiscoveryNode(address));
@@ -74,6 +74,11 @@ final class DnsEndpointResolver extends HazelcastKubernetesDiscoveryStrategy.End
         } catch (TextParseException e) {
             throw new RuntimeException("Could not resolve services via DNS", e);
         }
+    }
+
+    private int getHazelcastPort(int port){
+        if(port>0) return port;
+        return NetworkConfig.DEFAULT_PORT;
     }
 
     private InetAddress getAddress(SRVRecord srv) {
