@@ -23,6 +23,7 @@ import com.hazelcast.spi.discovery.SimpleDiscoveryNode;
 import io.fabric8.kubernetes.api.model.EndpointAddress;
 import io.fabric8.kubernetes.api.model.EndpointSubset;
 import io.fabric8.kubernetes.api.model.Endpoints;
+import io.fabric8.kubernetes.api.model.EndpointsList;
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
@@ -61,23 +62,34 @@ class ServiceEndpointResolver
     List<DiscoveryNode> resolve() {
         Endpoints endpoints = client.endpoints().inNamespace(namespace).withName(serviceName).get();
         if (endpoints == null) {
-            return Collections.emptyList();
+            EndpointsList endpointsInNamespace = client.endpoints().inNamespace(namespace).list();
+            if (endpointsInNamespace == null)
+                return Collections.emptyList();
+            return getDiscoveryNodes(endpointsInNamespace);
         }
+        return getSimpleDiscoveryNodes(endpoints);
+    }
 
+    private List<DiscoveryNode> getDiscoveryNodes(EndpointsList endpointsInNamespace) {
+        List<DiscoveryNode> discoveredNodes = new ArrayList<DiscoveryNode>();
+        for (Endpoints endpoints : endpointsInNamespace.getItems()) {
+            discoveredNodes.addAll(getSimpleDiscoveryNodes(endpoints));
+        }
+        return discoveredNodes;
+    }
+
+    private List<DiscoveryNode> getSimpleDiscoveryNodes( Endpoints endpoints) {
         List<DiscoveryNode> discoveredNodes = new ArrayList<DiscoveryNode>();
         for (EndpointSubset endpointSubset : endpoints.getSubsets()) {
             for (EndpointAddress endpointAddress : endpointSubset.getAddresses()) {
                 Map<String, Object> properties = endpointAddress.getAdditionalProperties();
-
                 String ip = endpointAddress.getIp();
                 InetAddress inetAddress = mapAddress(ip);
                 int port = getServicePort(properties);
-
                 Address address = new Address(inetAddress, port);
                 discoveredNodes.add(new SimpleDiscoveryNode(address, properties));
             }
         }
-
         return discoveredNodes;
     }
 
