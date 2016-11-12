@@ -52,7 +52,7 @@ final class HazelcastKubernetesDiscoveryStrategy
                 + "service-name: " + serviceName + ", " //
                 + "service-label: " + serviceLabel + ", " //
                 + "service-label-value: " + serviceLabelValue + ", " //
-                + "namespace: " + namespace //
+                + "namespace: " + namespace + ", " //
                 + "fallback-to-all-in-ns: " + fallbackToAll //
                 + "}");
 
