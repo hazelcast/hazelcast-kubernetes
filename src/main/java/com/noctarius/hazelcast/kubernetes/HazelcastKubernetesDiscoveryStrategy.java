@@ -28,12 +28,7 @@ import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Map;
 
-import static com.noctarius.hazelcast.kubernetes.KubernetesProperties.KUBERNETES_SYSTEM_PREFIX;
-import static com.noctarius.hazelcast.kubernetes.KubernetesProperties.NAMESPACE;
-import static com.noctarius.hazelcast.kubernetes.KubernetesProperties.SERVICE_DNS;
-import static com.noctarius.hazelcast.kubernetes.KubernetesProperties.SERVICE_LABEL_NAME;
-import static com.noctarius.hazelcast.kubernetes.KubernetesProperties.SERVICE_LABEL_VALUE;
-import static com.noctarius.hazelcast.kubernetes.KubernetesProperties.SERVICE_NAME;
+import static com.noctarius.hazelcast.kubernetes.KubernetesProperties.*;
 
 final class HazelcastKubernetesDiscoveryStrategy
         extends AbstractDiscoveryStrategy {
@@ -50,6 +45,7 @@ final class HazelcastKubernetesDiscoveryStrategy
         String serviceLabel = getOrNull(properties, KUBERNETES_SYSTEM_PREFIX, SERVICE_LABEL_NAME);
         String serviceLabelValue = getOrDefault(properties, KUBERNETES_SYSTEM_PREFIX, SERVICE_LABEL_VALUE, "true");
         String namespace = getOrDefault(properties, KUBERNETES_SYSTEM_PREFIX, NAMESPACE, getNamespaceOrDefault());
+        Boolean fallbackToAll = getOrDefault(properties, KUBERNETES_SYSTEM_PREFIX, FALLBACK_TO_ALL, false);
 
         logger.info("Kubernetes Discovery properties: { " //
                 + "service-dns: " + serviceDns + ", " //
@@ -57,13 +53,14 @@ final class HazelcastKubernetesDiscoveryStrategy
                 + "service-label: " + serviceLabel + ", " //
                 + "service-label-value: " + serviceLabelValue + ", " //
                 + "namespace: " + namespace //
+                + "fallback-to-all-in-ns: " + fallbackToAll //
                 + "}");
 
         EndpointResolver endpointResolver;
         if (serviceDns != null) {
             endpointResolver = new DnsEndpointResolver(logger, serviceDns);
         } else {
-            endpointResolver = new ServiceEndpointResolver(logger, serviceName, serviceLabel, serviceLabelValue, namespace);
+            endpointResolver = new ServiceEndpointResolver(logger, serviceName, serviceLabel, serviceLabelValue, namespace, fallbackToAll);
         }
         logger.info("Kubernetes Discovery activated resolver: " + endpointResolver.getClass().getSimpleName());
         this.endpointResolver = endpointResolver;

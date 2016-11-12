@@ -46,11 +46,12 @@ class ServiceEndpointResolver
     private final String serviceLabel;
     private final String serviceLabelValue;
     private final String namespace;
+    private final boolean fallbackToAll;
 
     private final KubernetesClient client;
 
     public ServiceEndpointResolver(ILogger logger, String serviceName, String serviceLabel, //
-                                   String serviceLabelValue, String namespace) {
+                                   String serviceLabelValue, String namespace, boolean fallbackToAll) {
 
         super(logger);
 
@@ -58,6 +59,7 @@ class ServiceEndpointResolver
         this.namespace = namespace;
         this.serviceLabel = serviceLabel;
         this.serviceLabelValue = serviceLabelValue;
+        this.fallbackToAll = fallbackToAll;
 
         String accountToken = getAccountToken();
         logger.info("Kubernetes Discovery: Bearer Token { " + accountToken + " }");
@@ -76,7 +78,7 @@ class ServiceEndpointResolver
                     client.endpoints().inNamespace(namespace).withLabel(serviceLabel, serviceLabelValue).list());
         }
 
-        return result.isEmpty() ? getNodesByNamespace() : result;
+        return result.isEmpty() && fallbackToAll ? getNodesByNamespace() : result;
     }
 
     private List<DiscoveryNode> getNodesByNamespace() {

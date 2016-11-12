@@ -20,6 +20,7 @@ import com.hazelcast.config.properties.PropertyDefinition;
 import com.hazelcast.config.properties.SimplePropertyDefinition;
 import com.hazelcast.core.TypeConverter;
 
+import static com.hazelcast.config.properties.PropertyTypeConverter.BOOLEAN;
 import static com.hazelcast.config.properties.PropertyTypeConverter.STRING;
 
 /**
@@ -76,6 +77,12 @@ public final class KubernetesProperties {
      * Defines the namespace of the application POD through the Service Discovery REST API of Kubernetes.
      */
     public static final PropertyDefinition NAMESPACE = property("namespace", STRING);
+
+    /**
+     * <p>Configuration key: <tt>fallback-to-all-in-ns</tt></p>
+     * Defines whether when no specific match is found through Kubernetes all endpoints should be probed.
+     */
+    public static final PropertyDefinition FALLBACK_TO_ALL = property("fallback-to-all-in-ns", BOOLEAN);
 
     // Prevent instantiation
     private KubernetesProperties() {
