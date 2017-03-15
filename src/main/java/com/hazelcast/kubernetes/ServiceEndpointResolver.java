@@ -114,15 +114,22 @@ class ServiceEndpointResolver
         List<DiscoveryNode> discoveredNodes = new ArrayList<DiscoveryNode>();
         for (EndpointSubset endpointSubset : endpoints.getSubsets()) {
             for (EndpointAddress endpointAddress : endpointSubset.getAddresses()) {
-                Map<String, Object> properties = endpointAddress.getAdditionalProperties();
-                String ip = endpointAddress.getIp();
-                InetAddress inetAddress = mapAddress(ip);
-                int port = getServicePort(properties);
-                Address address = new Address(inetAddress, port);
-                discoveredNodes.add(new SimpleDiscoveryNode(address, properties));
+                addAddress(discoveredNodes, endpointAddress);
+            }
+            for (EndpointAddress endpointAddress : endpointSubset.getNotReadyAddresses()) {
+                addAddress(discoveredNodes, endpointAddress);
             }
         }
         return discoveredNodes;
+    }
+        
+    private void addAddress(List<DiscoveryNode> discoveredNodes, EndpointAddress endpointAddress) {
+        Map<String, Object> properties = endpointAddress.getAdditionalProperties();
+        String ip = endpointAddress.getIp();
+        InetAddress inetAddress = mapAddress(ip);
+        int port = getServicePort(properties);
+        Address address = new Address(inetAddress, port);
+        discoveredNodes.add(new SimpleDiscoveryNode(address, properties));
     }
 
     @Override
