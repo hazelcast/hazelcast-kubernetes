@@ -64,13 +64,12 @@ class ServiceEndpointResolver extends HazelcastKubernetesDiscoveryStrategy.Endpo
         this.client = buildKubernetesClient(apiToken, kubernetesMaster);
     }
 
-    private KubernetesClient buildKubernetesClient(String apiToken, String kubernetesMaster) {
-        String oauthToken = apiToken;
-        if (StringUtil.isNullOrEmpty(oauthToken)) {
-            oauthToken = getAccountToken();
+    private KubernetesClient buildKubernetesClient(String token, String kubernetesMaster) {
+        if (StringUtil.isNullOrEmpty(token)) {
+            token = getAccountToken();
         }
-        logger.info("Kubernetes Discovery: Bearer Token { " + oauthToken + " }");
-        Config config = new ConfigBuilder().withOauthToken(oauthToken).withMasterUrl(kubernetesMaster).build();
+        logger.info("Kubernetes Discovery: Bearer Token { " + token + " }");
+        Config config = new ConfigBuilder().withOauthToken(token).withMasterUrl(kubernetesMaster).build();
         return new DefaultKubernetesClient(config);
     }
 
