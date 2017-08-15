@@ -27,7 +27,11 @@ import io.fabric8.kubernetes.api.model.EndpointAddress;
 import io.fabric8.kubernetes.api.model.EndpointSubset;
 import io.fabric8.kubernetes.api.model.Endpoints;
 import io.fabric8.kubernetes.api.model.EndpointsList;
-import io.fabric8.kubernetes.client.*;
+import io.fabric8.kubernetes.client.Config;
+import io.fabric8.kubernetes.client.ConfigBuilder;
+import io.fabric8.kubernetes.client.DefaultKubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClientException;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -169,7 +173,7 @@ class ServiceEndpointResolver
 
     private abstract class RetryableOperation<T> {
 
-        private final int maxNumberOfRetries = 10;
+        private static final int MAX_NUMBER_OF_RETRIES = 5;
 
         public abstract T exec();
 
@@ -184,16 +188,17 @@ class ServiceEndpointResolver
                     retry = false;
                 } catch (KubernetesClientException ke) {
                     logger.warning(String.format("Could not perform operation in cluster. Retry [%s]", triesCount), ke);
-                    if (triesCount == maxNumberOfRetries) {
+                    if (triesCount == MAX_NUMBER_OF_RETRIES) {
                         throw ke;
                     }
                 }
                 try {
-                    Thread.sleep(triesCount * 1000);
+                    final long oneSecond = 1 * 1000;
+                    Thread.sleep(triesCount * oneSecond);
                 } catch (InterruptedException e) {
                     logger.warning("Error waiting up sleep period", e);
                 }
-            } while (retry && triesCount < maxNumberOfRetries);
+            } while (retry && triesCount < MAX_NUMBER_OF_RETRIES);
             return result;
         }
     }
