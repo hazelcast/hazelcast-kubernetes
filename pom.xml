@@ -54,14 +54,12 @@
 
   <distributionManagement>
     <repository>
-      <id>release-repository</id>
-      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+      <id>tchibo-ship-releases</id>
+      <url>http://nexus.ship.tchibo.com/repository/maven-releases/</url>
     </repository>
     <snapshotRepository>
-      <id>snapshot-repository</id>
-      <name>Maven2 Snapshot Repository</name>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-      <uniqueVersion>false</uniqueVersion>
+      <id>tchibo-ship-snapshots</id>
+      <url>http://nexus.ship.tchibo.com/repository/maven-snapshots/</url>
     </snapshotRepository>
   </distributionManagement>
 
