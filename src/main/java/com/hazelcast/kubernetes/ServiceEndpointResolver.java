@@ -19,6 +19,7 @@ package com.hazelcast.kubernetes;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,6 +32,7 @@ import com.hazelcast.spi.discovery.DiscoveryNode;
 import com.hazelcast.spi.discovery.SimpleDiscoveryNode;
 import com.hazelcast.util.StringUtil;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.fabric8.kubernetes.api.model.EndpointAddress;
 import io.fabric8.kubernetes.api.model.EndpointSubset;
 import io.fabric8.kubernetes.api.model.Endpoints;
@@ -127,19 +129,20 @@ class ServiceEndpointResolver extends HazelcastKubernetesDiscoveryStrategy.Endpo
         }
         List<DiscoveryNode> discoveredNodes = new ArrayList<DiscoveryNode>();
         for (EndpointSubset endpointSubset : endpoints.getSubsets()) {
-            if (endpointSubset.getAddresses() == null) {
-                continue;
+            if (endpointSubset.getAddresses() != null) {
+                for (EndpointAddress endpointAddress : endpointSubset.getAddresses()) {
+                    addAddress(discoveredNodes, endpointAddress);
+                }
             }
-            for (EndpointAddress endpointAddress : endpointSubset.getAddresses()) {
-                addAddress(discoveredNodes, endpointAddress);
-            }
-            for (EndpointAddress endpointAddress : endpointSubset.getNotReadyAddresses()) {
-                addAddress(discoveredNodes, endpointAddress);
+            if (endpointSubset.getNotReadyAddresses() != null) {
+                for (EndpointAddress endpointAddress : endpointSubset.getNotReadyAddresses()) {
+                    addAddress(discoveredNodes, endpointAddress);
+                }
             }
         }
         return discoveredNodes;
     }
-        
+
     private void addAddress(List<DiscoveryNode> discoveredNodes, EndpointAddress endpointAddress) {
         Map<String, Object> properties = endpointAddress.getAdditionalProperties();
         String ip = endpointAddress.getIp();
@@ -154,10 +157,12 @@ class ServiceEndpointResolver extends HazelcastKubernetesDiscoveryStrategy.Endpo
         client.close();
     }
 
+    @SuppressFBWarnings("DMI_HARDCODED_ABSOLUTE_FILENAME")
     private String getAccountToken() {
         String serviceTokenCandidate = null;
         try {
-            serviceTokenCandidate = new String(Files.readAllBytes(new File(Config.KUBERNETES_SERVICE_ACCOUNT_TOKEN_PATH).toPath()));
+            serviceTokenCandidate = new String(Files.readAllBytes(
+                    new File(Config.KUBERNETES_SERVICE_ACCOUNT_TOKEN_PATH).toPath()), Charset.defaultCharset());
         } catch (IOException e) {
             throw new RuntimeException("Could not get token file", e);
         }
