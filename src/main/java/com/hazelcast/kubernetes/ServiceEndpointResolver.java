@@ -42,6 +42,7 @@ import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClientException;
 
 class ServiceEndpointResolver extends HazelcastKubernetesDiscoveryStrategy.EndpointResolver {
 
@@ -77,19 +78,35 @@ class ServiceEndpointResolver extends HazelcastKubernetesDiscoveryStrategy.Endpo
     List<DiscoveryNode> resolve() {
         List<DiscoveryNode> result = Collections.emptyList();
         if (serviceName != null && !serviceName.isEmpty()) {
-            result = getSimpleDiscoveryNodes(client.endpoints().inNamespace(namespace).withName(serviceName).get());
+            Endpoints endpoints = call(new RetryableOperation<Endpoints>() {
+                @Override
+                public Endpoints exec() {
+                    return client.endpoints().inNamespace(namespace).withName(serviceName).get();
+                }
+            });
+            result = getSimpleDiscoveryNodes(endpoints);
         }
 
         if (result.isEmpty() && serviceLabel != null && !serviceLabel.isEmpty()) {
-            result = getDiscoveryNodes(
-                    client.endpoints().inNamespace(namespace).withLabel(serviceLabel, serviceLabelValue).list());
+            EndpointsList endpoints = call(new RetryableOperation<EndpointsList>() {
+                @Override
+                public EndpointsList exec() {
+                    return client.endpoints().inNamespace(namespace).withLabel(serviceLabel, serviceLabelValue).list();
+                }
+            });
+            result = getDiscoveryNodes(endpoints);
         }
 
         return result.isEmpty() ? getNodesByNamespace() : result;
     }
 
     private List<DiscoveryNode> getNodesByNamespace() {
-        final EndpointsList endpointsInNamespace = client.endpoints().inNamespace(namespace).list();
+        final EndpointsList endpointsInNamespace = call(new RetryableOperation<EndpointsList>() {
+            @Override
+            public EndpointsList exec() {
+                return client.endpoints().inNamespace(namespace).list();
+            }
+        });
         if (endpointsInNamespace == null) {
             return Collections.emptyList();
         }
@@ -147,6 +164,45 @@ class ServiceEndpointResolver extends HazelcastKubernetesDiscoveryStrategy.Endpo
             throw new RuntimeException("Could not get token file", e);
         } finally {
             IOUtil.closeResource(is);
+        }
+    }
+
+    /**
+     * Performs a Kubernetes API call retrying operation in case an error is thrown.
+     */
+    private <T extends Object> T call(RetryableOperation<T> template) {
+        return template.wrapExec();
+    }
+
+    private abstract class RetryableOperation<T> {
+
+        private static final int MAX_NUMBER_OF_RETRIES = 5;
+
+        public abstract T exec();
+
+        T wrapExec() {
+            T result = null;
+            boolean retry = true;
+            int triesCount = 0;
+            do {
+                try {
+                    triesCount++;
+                    result = exec();
+                    retry = false;
+                } catch (KubernetesClientException ke) {
+                    logger.warning(String.format("Could not perform operation in cluster. Retry [%s]", triesCount), ke);
+                    if (triesCount == MAX_NUMBER_OF_RETRIES) {
+                        throw ke;
+                    }
+                }
+                try {
+                    final long oneSecond = 1 * 1000;
+                    Thread.sleep(triesCount * oneSecond);
+                } catch (InterruptedException e) {
+                    logger.warning("Error waiting up sleep period", e);
+                }
+            } while (retry && triesCount < MAX_NUMBER_OF_RETRIES);
+            return result;
         }
     }
 }
