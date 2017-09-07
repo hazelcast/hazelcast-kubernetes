@@ -17,10 +17,9 @@
 package com.hazelcast.kubernetes;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.InetAddress;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -28,12 +27,10 @@ import java.util.Map;
 
 import com.hazelcast.logging.ILogger;
 import com.hazelcast.nio.Address;
-import com.hazelcast.nio.IOUtil;
 import com.hazelcast.spi.discovery.DiscoveryNode;
 import com.hazelcast.spi.discovery.SimpleDiscoveryNode;
 import com.hazelcast.util.StringUtil;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.fabric8.kubernetes.api.model.EndpointAddress;
 import io.fabric8.kubernetes.api.model.EndpointSubset;
 import io.fabric8.kubernetes.api.model.Endpoints;
@@ -150,21 +147,15 @@ class ServiceEndpointResolver extends HazelcastKubernetesDiscoveryStrategy.Endpo
         client.close();
     }
 
-    @SuppressFBWarnings("DMI_HARDCODED_ABSOLUTE_FILENAME")
     private String getAccountToken() {
-        InputStream is = null;
+        String serviceTokenCandidate = null;
         try {
-            String tokenFile = "/var/run/secrets/kubernetes.io/serviceaccount/token";
-            File file = new File(tokenFile);
-            byte[] data = new byte[(int) file.length()];
-            is = new FileInputStream(file);
-            is.read(data);
-            return new String(data, "UTF-8");
+            serviceTokenCandidate = new String(Files.readAllBytes(new File(Config.KUBERNETES_SERVICE_ACCOUNT_TOKEN_PATH).toPath()));
         } catch (IOException e) {
             throw new RuntimeException("Could not get token file", e);
-        } finally {
-            IOUtil.closeResource(is);
         }
+
+        return serviceTokenCandidate;
     }
 
     /**
@@ -196,7 +187,7 @@ class ServiceEndpointResolver extends HazelcastKubernetesDiscoveryStrategy.Endpo
                     }
                 }
                 try {
-                    final long oneSecond = 1 * 1000;
+                    final long oneSecond = 1000;
                     Thread.sleep(triesCount * oneSecond);
                 } catch (InterruptedException e) {
                     logger.warning("Error waiting up sleep period", e);
