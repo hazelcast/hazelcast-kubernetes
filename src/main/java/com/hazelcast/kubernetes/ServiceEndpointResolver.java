@@ -77,6 +77,7 @@ class ServiceEndpointResolver extends HazelcastKubernetesDiscoveryStrategy.Endpo
     List<DiscoveryNode> resolve() {
         List<DiscoveryNode> result = Collections.emptyList();
         if (serviceName != null && !serviceName.isEmpty()) {
+            logger.info("Resolving nodes via serviceName: "+serviceName);
             Endpoints endpoints = call(new RetryableOperation<Endpoints>() {
                 @Override
                 public Endpoints exec() {
@@ -87,6 +88,7 @@ class ServiceEndpointResolver extends HazelcastKubernetesDiscoveryStrategy.Endpo
         }
 
         if (result.isEmpty() && serviceLabel != null && !serviceLabel.isEmpty()) {
+            logger.info("Resolving nodes via serviceLabel: "+serviceLabel);
             EndpointsList endpoints = call(new RetryableOperation<EndpointsList>() {
                 @Override
                 public EndpointsList exec() {
@@ -125,16 +127,19 @@ class ServiceEndpointResolver extends HazelcastKubernetesDiscoveryStrategy.Endpo
 
     private List<DiscoveryNode> getSimpleDiscoveryNodes(Endpoints endpoints) {
         if (endpoints == null) {
+            logger.warning("Resolved empty endpoints");
             return Collections.emptyList();
         }
         List<DiscoveryNode> discoveredNodes = new ArrayList<DiscoveryNode>();
         for (EndpointSubset endpointSubset : endpoints.getSubsets()) {
             if (endpointSubset.getAddresses() != null) {
+                logger.fine("Adding "+String.valueOf(endpointSubset.getAddresses().size())+" ready endpoint addresses.");
                 for (EndpointAddress endpointAddress : endpointSubset.getAddresses()) {
                     addAddress(discoveredNodes, endpointAddress);
                 }
             }
             if (endpointSubset.getNotReadyAddresses() != null) {
+                logger.fine("Adding "+String.valueOf(endpointSubset.getNotReadyAddresses().size())+" not-ready endpoint addresses.");
                 for (EndpointAddress endpointAddress : endpointSubset.getNotReadyAddresses()) {
                     addAddress(discoveredNodes, endpointAddress);
                 }
