@@ -77,7 +77,7 @@ class ServiceEndpointResolver extends HazelcastKubernetesDiscoveryStrategy.Endpo
     List<DiscoveryNode> resolve() {
         List<DiscoveryNode> result = Collections.emptyList();
         if (serviceName != null && !serviceName.isEmpty()) {
-            logger.info("Resolving nodes via serviceName: " + serviceName);
+            logger.fine("Resolving nodes via serviceName: " + serviceName);
             Endpoints endpoints = call(new RetryableOperation<Endpoints>() {
                 @Override
                 public Endpoints exec() {
@@ -88,7 +88,7 @@ class ServiceEndpointResolver extends HazelcastKubernetesDiscoveryStrategy.Endpo
         }
 
         if (result.isEmpty() && serviceLabel != null && !serviceLabel.isEmpty()) {
-            logger.info("Resolving nodes via serviceLabel: " + serviceLabel);
+            logger.fine("Resolving nodes via serviceLabel: " + serviceLabel);
             EndpointsList endpoints = call(new RetryableOperation<EndpointsList>() {
                 @Override
                 public EndpointsList exec() {
