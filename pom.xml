@@ -69,13 +69,13 @@
       <url>https://oss.sonatype.org/content/repositories/snapshots</url>
     </repository>
   </repositories>
-
-  <scm>
-    <connection>scm:git:git://github.com/hazelcast/hazelcast-kubernetes.git</connection>
-    <developerConnection>scm:git:git@github.com:hazelcast/hazelcast-kubernetes.git</developerConnection>
-    <url>https://github.com/hazelcast/hazelcast-kubernetes/</url>
-    <tag>HEAD</tag>
-  </scm>
+  
+<scm>
+	<connection>scm:git:ssh://git@git.tchibo.com/ship/hazelcast-kubernetes.git</connection>
+	<developerConnection>scm:git:ssh://git@git.tchibo.com/ship/hazelcast-kubernetes.git</developerConnection>
+	<tag>master</tag>
+	<url>https://git.tchibo.com/ship/hazelcast-kubernetes</url>
+</scm>
 
   <developers>
     <developer>
