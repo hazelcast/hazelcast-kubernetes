@@ -15,7 +15,7 @@
 
   <groupId>com.hazelcast</groupId>
   <artifactId>hazelcast-kubernetes</artifactId>
-  <version>1.0.1</version>
+  <version>1.0.1-SNAPSHOT</version>
   <name>Kubernetes Discovery Plugin for Hazelcast</name>
   <description>Kubernetes Service Discovery for Hazelcast Discovery SPI</description>
   <url>http://github.com/hazelcast/hazelcast-kubernetes</url>
@@ -74,7 +74,7 @@
 <scm>
 	<connection>scm:git:ssh://git@git.tchibo.com/ship/hazelcast-kubernetes.git</connection>
 	<developerConnection>scm:git:ssh://git@git.tchibo.com/ship/hazelcast-kubernetes.git</developerConnection>
-	<tag>hazelcast-kubernetes-1.0.1</tag>
+	<tag>master</tag>
 	<url>https://git.tchibo.com/ship/hazelcast-kubernetes</url>
 </scm>
 
