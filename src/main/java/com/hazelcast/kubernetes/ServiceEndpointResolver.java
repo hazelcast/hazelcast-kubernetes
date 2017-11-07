@@ -38,6 +38,8 @@ import io.fabric8.kubernetes.api.model.EndpointAddress;
 import io.fabric8.kubernetes.api.model.EndpointSubset;
 import io.fabric8.kubernetes.api.model.Endpoints;
 import io.fabric8.kubernetes.api.model.EndpointsList;
+import io.fabric8.kubernetes.api.model.PodList;
+import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
@@ -77,7 +79,11 @@ class ServiceEndpointResolver extends HazelcastKubernetesDiscoveryStrategy.Endpo
     List<DiscoveryNode> resolve() {
         List<DiscoveryNode> result = Collections.emptyList();
         if (serviceName != null && !serviceName.isEmpty()) {
-            result = getSimpleDiscoveryNodes(client.endpoints().inNamespace(namespace).withName(serviceName).get());
+            // get endpoint selector from service
+            Map<String, String> serviceSelector = client.inNamespace(namespace).services()
+                                                        .withName(serviceName).get().getSpec().getSelector();
+            // get pods with the same selector as the service searches for endpoints
+            result = getSimpleDiscoveryNodes(client.pods().inNamespace(namespace).withLabels(serviceSelector).list());
         }
 
         if (result.isEmpty() && serviceLabel != null && !serviceLabel.isEmpty()) {
@@ -121,6 +127,22 @@ class ServiceEndpointResolver extends HazelcastKubernetesDiscoveryStrategy.Endpo
                 Address address = new Address(inetAddress, port);
                 discoveredNodes.add(new SimpleDiscoveryNode(address, properties));
             }
+        }
+        return discoveredNodes;
+    }
+
+    private List<DiscoveryNode> getSimpleDiscoveryNodes(PodList endpoints) {
+        if (endpoints == null) {
+            return Collections.emptyList();
+        }
+        List<DiscoveryNode> discoveredNodes = new ArrayList<DiscoveryNode>();
+        for (Pod pod : endpoints.getItems()) {
+            Map<String, Object> properties = pod.getAdditionalProperties();
+            String ip = pod.getStatus().getPodIP();
+            InetAddress inetAddress = mapAddress(ip);
+            int port = getServicePort(properties);
+            Address address = new Address(inetAddress, port);
+            discoveredNodes.add(new SimpleDiscoveryNode(address, properties));
         }
         return discoveredNodes;
     }
