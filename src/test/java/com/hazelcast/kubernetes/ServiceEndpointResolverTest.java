@@ -84,6 +84,18 @@ public class ServiceEndpointResolverTest {
     }
 
     @Test
+    public void resolveWithNamespaceAndNodeInNamespaceWithNoReadyPods() {
+        Endpoints discoveryNode = createEndpoints(1);
+        discoveryNode.getSubsets().get(0).setAddresses(null);
+        nodesInNamespace.getItems().add(discoveryNode);
+
+        ServiceEndpointResolver sut = new ServiceEndpointResolver(LOGGER, SERVICE_NAME, null, null, NAMESPACE, KUBERNETES_MASTER_URL, API_TOKEN);
+        List<DiscoveryNode> nodes = sut.resolve();
+
+        assertEquals(0, nodes.size());
+    }
+
+    @Test
     @Ignore //enable when https://github.com/hazelcast/hazelcast-kubernetes/pull/30 is merged.
     public void resolveWithServiceLabelAndNodeInNamespace() {
         nodesInNamespace.getItems().add(createEndpoints(1));
