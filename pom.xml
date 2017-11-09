@@ -15,7 +15,7 @@
 
   <groupId>com.hazelcast</groupId>
   <artifactId>hazelcast-kubernetes</artifactId>
-  <version>1.0.1-SNAPSHOT</version>
+  <version>1.0.2-SNAPSHOT</version>
   <name>Kubernetes Discovery Plugin for Hazelcast</name>
   <description>Kubernetes Service Discovery for Hazelcast Discovery SPI</description>
   <url>http://github.com/hazelcast/hazelcast-kubernetes</url>
@@ -23,6 +23,10 @@
   <packaging>bundle</packaging>
 
   <properties>
+    <java.version>1.8</java.version>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+
     <!-- needed for checkstyle/findbugs -->
     <main.basedir>${project.basedir}</main.basedir>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -36,6 +40,7 @@
 
     <hazelcast.version>3.8.2</hazelcast.version>
     <kubernetes-client.version>1.3.66</kubernetes-client.version>
+    <maven-release-plugin.version>2.5.3</maven-release-plugin.version>
     <dnsjava.version>2.1.7</dnsjava.version>
 
     <maven.checkstyle.plugin.version>2.15</maven.checkstyle.plugin.version>
@@ -49,14 +54,12 @@
 
   <distributionManagement>
     <repository>
-      <id>release-repository</id>
-      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+      <id>tchibo-ship-releases</id>
+      <url>http://nexus.ship.tchibo.com/repository/maven-releases/</url>
     </repository>
     <snapshotRepository>
-      <id>snapshot-repository</id>
-      <name>Maven2 Snapshot Repository</name>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-      <uniqueVersion>false</uniqueVersion>
+      <id>tchibo-ship-snapshots</id>
+      <url>http://nexus.ship.tchibo.com/repository/maven-snapshots/</url>
     </snapshotRepository>
   </distributionManagement>
 
@@ -67,13 +70,13 @@
       <url>https://oss.sonatype.org/content/repositories/snapshots</url>
     </repository>
   </repositories>
-
-  <scm>
-    <connection>scm:git:git://github.com/hazelcast/hazelcast-kubernetes.git</connection>
-    <developerConnection>scm:git:git@github.com:hazelcast/hazelcast-kubernetes.git</developerConnection>
-    <url>https://github.com/hazelcast/hazelcast-kubernetes/</url>
-    <tag>HEAD</tag>
-  </scm>
+  
+<scm>
+	<connection>scm:git:ssh://git@git.tchibo.com/ship/hazelcast-kubernetes.git</connection>
+	<developerConnection>scm:git:ssh://git@git.tchibo.com/ship/hazelcast-kubernetes.git</developerConnection>
+	<tag>master</tag>
+	<url>https://git.tchibo.com/ship/hazelcast-kubernetes</url>
+</scm>
 
   <developers>
     <developer>
@@ -367,21 +370,6 @@
         <plugins>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-gpg-plugin</artifactId>
-            <version>${maven.gpg.plugin.version}</version>
-            <executions>
-              <execution>
-                <id>sign-artifacts</id>
-                <phase>verify</phase>
-                <goals>
-                  <goal>sign</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
             <version>${maven.javadoc.plugin.version}</version>
             <configuration>
@@ -495,6 +483,21 @@
         </plugins>
       </build>
     </profile>
+	<profile>
+		<id>build</id>
+		<activation>
+			<activeByDefault>true</activeByDefault>
+		</activation>
+		<build>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-release-plugin</artifactId>
+					<version>${maven-release-plugin.version}</version>
+				</plugin>
+			</plugins>
+		</build>
+	</profile>
     <profile>
       <id>release-sign-artifacts</id>
       <activation>
@@ -520,20 +523,6 @@
               <suppressCommitBeforeTag>false</suppressCommitBeforeTag>
               <remoteTagging>false</remoteTagging>
             </configuration>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-gpg-plugin</artifactId>
-            <version>1.1</version>
-            <executions>
-              <execution>
-                <id>sign-artifacts</id>
-                <phase>verify</phase>
-                <goals>
-                  <goal>sign</goal>
-                </goals>
-              </execution>
-            </executions>
           </plugin>
         </plugins>
       </build>

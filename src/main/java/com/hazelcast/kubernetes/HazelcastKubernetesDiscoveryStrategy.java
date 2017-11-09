@@ -66,7 +66,8 @@ final class HazelcastKubernetesDiscoveryStrategy
                 + "service-name: " + serviceName + ", "
                 + "service-label: " + serviceLabel + ", "
                 + "service-label-value: " + serviceLabelValue + ", "
-                + "namespace: " + namespace + ", " + "kubernetes-master: " + kubernetesMaster + "}");
+                + "namespace: " + namespace + ", "
+                + "kubernetes-master: " + kubernetesMaster + "}");
 
         EndpointResolver endpointResolver;
         if (serviceDns != null) {

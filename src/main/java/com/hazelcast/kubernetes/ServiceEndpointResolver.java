@@ -17,10 +17,10 @@
 package com.hazelcast.kubernetes;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.InetAddress;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -28,7 +28,6 @@ import java.util.Map;
 
 import com.hazelcast.logging.ILogger;
 import com.hazelcast.nio.Address;
-import com.hazelcast.nio.IOUtil;
 import com.hazelcast.spi.discovery.DiscoveryNode;
 import com.hazelcast.spi.discovery.SimpleDiscoveryNode;
 import com.hazelcast.util.StringUtil;
@@ -42,6 +41,7 @@ import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClientException;
 
 class ServiceEndpointResolver extends HazelcastKubernetesDiscoveryStrategy.EndpointResolver {
 
@@ -77,19 +77,37 @@ class ServiceEndpointResolver extends HazelcastKubernetesDiscoveryStrategy.Endpo
     List<DiscoveryNode> resolve() {
         List<DiscoveryNode> result = Collections.emptyList();
         if (serviceName != null && !serviceName.isEmpty()) {
-            result = getSimpleDiscoveryNodes(client.endpoints().inNamespace(namespace).withName(serviceName).get());
+            logger.fine("Resolving nodes via serviceName: " + serviceName);
+            Endpoints endpoints = call(new RetryableOperation<Endpoints>() {
+                @Override
+                public Endpoints exec() {
+                    return client.endpoints().inNamespace(namespace).withName(serviceName).get();
+                }
+            });
+            result = getSimpleDiscoveryNodes(endpoints);
         }
 
         if (result.isEmpty() && serviceLabel != null && !serviceLabel.isEmpty()) {
-            result = getDiscoveryNodes(
-                    client.endpoints().inNamespace(namespace).withLabel(serviceLabel, serviceLabelValue).list());
+            logger.fine("Resolving nodes via serviceLabel: " + serviceLabel);
+            EndpointsList endpoints = call(new RetryableOperation<EndpointsList>() {
+                @Override
+                public EndpointsList exec() {
+                    return client.endpoints().inNamespace(namespace).withLabel(serviceLabel, serviceLabelValue).list();
+                }
+            });
+            result = getDiscoveryNodes(endpoints);
         }
 
         return result.isEmpty() ? getNodesByNamespace() : result;
     }
 
     private List<DiscoveryNode> getNodesByNamespace() {
-        final EndpointsList endpointsInNamespace = client.endpoints().inNamespace(namespace).list();
+        final EndpointsList endpointsInNamespace = call(new RetryableOperation<EndpointsList>() {
+            @Override
+            public EndpointsList exec() {
+                return client.endpoints().inNamespace(namespace).list();
+            }
+        });
         if (endpointsInNamespace == null) {
             return Collections.emptyList();
         }
@@ -109,23 +127,36 @@ class ServiceEndpointResolver extends HazelcastKubernetesDiscoveryStrategy.Endpo
 
     private List<DiscoveryNode> getSimpleDiscoveryNodes(Endpoints endpoints) {
         if (endpoints == null) {
+            logger.warning("Resolved empty endpoints");
             return Collections.emptyList();
         }
         List<DiscoveryNode> discoveredNodes = new ArrayList<DiscoveryNode>();
         for (EndpointSubset endpointSubset : endpoints.getSubsets()) {
-            if (endpointSubset.getAddresses() == null) {
-                continue;
+            if (endpointSubset.getAddresses() != null) {
+                logger.fine("Adding " + String.valueOf(endpointSubset.getAddresses().size())
+                        + " ready endpoint addresses.");
+                for (EndpointAddress endpointAddress : endpointSubset.getAddresses()) {
+                    addAddress(discoveredNodes, endpointAddress);
+                }
             }
-            for (EndpointAddress endpointAddress : endpointSubset.getAddresses()) {
-                Map<String, Object> properties = endpointAddress.getAdditionalProperties();
-                String ip = endpointAddress.getIp();
-                InetAddress inetAddress = mapAddress(ip);
-                int port = getServicePort(properties);
-                Address address = new Address(inetAddress, port);
-                discoveredNodes.add(new SimpleDiscoveryNode(address, properties));
+            if (endpointSubset.getNotReadyAddresses() != null) {
+                logger.fine("Adding " + String.valueOf(endpointSubset.getNotReadyAddresses().size())
+                        + " not-ready endpoint addresses.");
+                for (EndpointAddress endpointAddress : endpointSubset.getNotReadyAddresses()) {
+                    addAddress(discoveredNodes, endpointAddress);
+                }
             }
         }
         return discoveredNodes;
+    }
+
+    private void addAddress(List<DiscoveryNode> discoveredNodes, EndpointAddress endpointAddress) {
+        Map<String, Object> properties = endpointAddress.getAdditionalProperties();
+        String ip = endpointAddress.getIp();
+        InetAddress inetAddress = mapAddress(ip);
+        int port = getServicePort(properties);
+        Address address = new Address(inetAddress, port);
+        discoveredNodes.add(new SimpleDiscoveryNode(address, properties));
     }
 
     @Override
@@ -135,18 +166,53 @@ class ServiceEndpointResolver extends HazelcastKubernetesDiscoveryStrategy.Endpo
 
     @SuppressFBWarnings("DMI_HARDCODED_ABSOLUTE_FILENAME")
     private String getAccountToken() {
-        InputStream is = null;
+        String serviceTokenCandidate = null;
         try {
-            String tokenFile = "/var/run/secrets/kubernetes.io/serviceaccount/token";
-            File file = new File(tokenFile);
-            byte[] data = new byte[(int) file.length()];
-            is = new FileInputStream(file);
-            is.read(data);
-            return new String(data, "UTF-8");
+            serviceTokenCandidate = new String(Files.readAllBytes(
+                    new File(Config.KUBERNETES_SERVICE_ACCOUNT_TOKEN_PATH).toPath()), Charset.defaultCharset());
         } catch (IOException e) {
             throw new RuntimeException("Could not get token file", e);
-        } finally {
-            IOUtil.closeResource(is);
+        }
+
+        return serviceTokenCandidate;
+    }
+
+    /**
+     * Performs a Kubernetes API call retrying operation in case an error is thrown.
+     */
+    private <T extends Object> T call(RetryableOperation<T> template) {
+        return template.wrapExec();
+    }
+
+    private abstract class RetryableOperation<T> {
+
+        private static final int MAX_NUMBER_OF_RETRIES = 5;
+
+        public abstract T exec();
+
+        T wrapExec() {
+            T result = null;
+            boolean retry = true;
+            int triesCount = 0;
+            do {
+                try {
+                    triesCount++;
+                    result = exec();
+                    retry = false;
+                } catch (KubernetesClientException ke) {
+                    logger.warning(String.format("Could not perform operation in cluster. Retry [%s]", triesCount), ke);
+                    if (triesCount == MAX_NUMBER_OF_RETRIES) {
+                        throw ke;
+                    }
+                }
+                try {
+                    final long oneSecond = 1000;
+                    Thread.sleep(triesCount * oneSecond);
+                } catch (InterruptedException e) {
+                    logger.warning("Error waiting up sleep period", e);
+                }
+            } while (retry && triesCount < MAX_NUMBER_OF_RETRIES);
+            return result;
         }
     }
 }
