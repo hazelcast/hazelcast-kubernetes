@@ -20,6 +20,7 @@ import com.hazelcast.config.properties.PropertyDefinition;
 import com.hazelcast.config.properties.SimplePropertyDefinition;
 import com.hazelcast.core.TypeConverter;
 
+import static com.hazelcast.config.properties.PropertyTypeConverter.BOOLEAN;
 import static com.hazelcast.config.properties.PropertyTypeConverter.INTEGER;
 import static com.hazelcast.config.properties.PropertyTypeConverter.STRING;
 
@@ -96,6 +97,12 @@ public final class KubernetesProperties {
      * token from the auto-injected file at: <tt>/var/run/secrets/kubernetes.io/serviceaccount/token</tt>
      */
     public static final PropertyDefinition KUBERNETES_API_TOKEN = property("api-token", STRING);
+
+    /**
+     * <p>Configuration key: <tt>namespace-discovery</tt></p>
+     * Defines the namespace discovery has to be enabled or not. Default will enable the namepsace discovery
+     */
+    public static final PropertyDefinition NAMESPACE_DISCOVERY = property("namespace-discovery", BOOLEAN);
 
     // Prevent instantiation
     private KubernetesProperties() {

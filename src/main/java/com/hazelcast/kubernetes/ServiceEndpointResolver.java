@@ -49,16 +49,18 @@ class ServiceEndpointResolver extends HazelcastKubernetesDiscoveryStrategy.Endpo
     private final String serviceLabel;
     private final String serviceLabelValue;
     private final String namespace;
+    private final Boolean namespaceDiscovery;
 
     private final KubernetesClient client;
 
     ServiceEndpointResolver(ILogger logger, String serviceName, String serviceLabel, String serviceLabelValue,
-            String namespace, String kubernetesMaster, String apiToken) {
+            String namespace, Boolean namespaceDiscovery, String kubernetesMaster, String apiToken) {
 
         super(logger);
 
         this.serviceName = serviceName;
         this.namespace = namespace;
+        this.namespaceDiscovery = namespaceDiscovery;
         this.serviceLabel = serviceLabel;
         this.serviceLabelValue = serviceLabelValue;
         this.client = buildKubernetesClient(apiToken, kubernetesMaster);
@@ -77,7 +79,7 @@ class ServiceEndpointResolver extends HazelcastKubernetesDiscoveryStrategy.Endpo
     List<DiscoveryNode> resolve() {
         if (serviceName != null && !serviceName.isEmpty()) {
             return getSimpleDiscoveryNodes(client.endpoints().inNamespace(namespace).withName(serviceName).get());
-        } else if (serviceLabel != null && !serviceLabel.isEmpty()) {
+        } else if (serviceLabel != null && !serviceLabel.isEmpty() && namespaceDiscovery) {
             return getDiscoveryNodes(client.endpoints().inNamespace(namespace).withLabel(serviceLabel, serviceLabelValue).list());
         }
         return getNodesByNamespace();
@@ -86,6 +88,9 @@ class ServiceEndpointResolver extends HazelcastKubernetesDiscoveryStrategy.Endpo
     private List<DiscoveryNode> getNodesByNamespace() {
         final EndpointsList endpointsInNamespace = client.endpoints().inNamespace(namespace).list();
         if (endpointsInNamespace == null) {
+            return Collections.emptyList();
+        }
+        if (!namespaceDiscovery) {
             return Collections.emptyList();
         }
         return getDiscoveryNodes(endpointsInNamespace);

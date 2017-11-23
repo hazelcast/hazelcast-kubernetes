@@ -50,6 +50,7 @@ public class KubernetesDiscoveryStrategyFactoryTest {
         HazelcastKubernetesDiscoveryStrategyFactory factory = new HazelcastKubernetesDiscoveryStrategyFactory();
         Collection<PropertyDefinition> propertyDefinitions = factory.getConfigurationProperties();
         assertTrue(propertyDefinitions.contains(KubernetesProperties.SERVICE_DNS));
+        assertTrue(propertyDefinitions.contains(KubernetesProperties.NAMESPACE_DISCOVERY));
     }
 
     @Test

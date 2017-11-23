@@ -40,6 +40,7 @@ public class HazelcastKubernetesDiscoveryStrategyFactory
                 KubernetesProperties.SERVICE_DNS,
                 KubernetesProperties.SERVICE_NAME,
                 KubernetesProperties.NAMESPACE,
+                KubernetesProperties.NAMESPACE_DISCOVERY,
                 KubernetesProperties.SERVICE_LABEL_NAME,
                 KubernetesProperties.SERVICE_LABEL_VALUE,
                 KubernetesProperties.KUBERNETES_MASTER_URL,
