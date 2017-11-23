@@ -44,6 +44,7 @@ public class ServiceEndpointResolverTest {
     private static final String NAMESPACE = "theNamespace";
     private static final String KUBERNETES_MASTER_URL = "http://bla";
     private static final String API_TOKEN = "token";
+    private static final boolean NAMESPACE_DISCOVERY = true;
 
     @Mock
     private DefaultKubernetesClient client;
@@ -73,7 +74,7 @@ public class ServiceEndpointResolverTest {
 
     @Test
     public void resolveWithNamespaceAndNoNodeInNamespace() {
-        ServiceEndpointResolver sut = new ServiceEndpointResolver(LOGGER, SERVICE_NAME, null, null, NAMESPACE, KUBERNETES_MASTER_URL, API_TOKEN);
+        ServiceEndpointResolver sut = new ServiceEndpointResolver(LOGGER, SERVICE_NAME, null, null, NAMESPACE, NAMESPACE_DISCOVERY, KUBERNETES_MASTER_URL, API_TOKEN);
         List<DiscoveryNode> nodes = sut.resolve();
 
         assertEquals(0, nodes.size());
@@ -84,7 +85,7 @@ public class ServiceEndpointResolverTest {
         Endpoints discoveryNode = createEndpoints(1);
         nodesInNamespace.getItems().add(discoveryNode);
 
-        ServiceEndpointResolver sut = new ServiceEndpointResolver(LOGGER, SERVICE_NAME, null, null, NAMESPACE, KUBERNETES_MASTER_URL, API_TOKEN);
+        ServiceEndpointResolver sut = new ServiceEndpointResolver(LOGGER, SERVICE_NAME, null, null, NAMESPACE, NAMESPACE_DISCOVERY, KUBERNETES_MASTER_URL, API_TOKEN);
         List<DiscoveryNode> nodes = sut.resolve();
 
         assertEquals(1, nodes.size());
@@ -97,7 +98,7 @@ public class ServiceEndpointResolverTest {
         discoveryNode.getSubsets().get(0).setAddresses(null);
         nodesInNamespace.getItems().add(discoveryNode);
 
-        ServiceEndpointResolver sut = new ServiceEndpointResolver(LOGGER, SERVICE_NAME, null, null, NAMESPACE, KUBERNETES_MASTER_URL, API_TOKEN);
+        ServiceEndpointResolver sut = new ServiceEndpointResolver(LOGGER, SERVICE_NAME, null, null, NAMESPACE, NAMESPACE_DISCOVERY, KUBERNETES_MASTER_URL, API_TOKEN);
         List<DiscoveryNode> nodes = sut.resolve();
 
         assertEquals(0, nodes.size());
@@ -109,7 +110,7 @@ public class ServiceEndpointResolverTest {
         discoveryNode.setSubsets(null);
         nodesInNamespace.getItems().add(discoveryNode);
 
-        ServiceEndpointResolver sut = new ServiceEndpointResolver(LOGGER, SERVICE_NAME, null, null, NAMESPACE, KUBERNETES_MASTER_URL, API_TOKEN);
+        ServiceEndpointResolver sut = new ServiceEndpointResolver(LOGGER, SERVICE_NAME, null, null, NAMESPACE, NAMESPACE_DISCOVERY, KUBERNETES_MASTER_URL, API_TOKEN);
         List<DiscoveryNode> nodes = sut.resolve();
 
         assertEquals(0, nodes.size());
@@ -119,7 +120,7 @@ public class ServiceEndpointResolverTest {
     public void resolveWithServiceLabelAndNodeInNamespace() {
         nodesInNamespace.getItems().add(createEndpoints(1));
 
-        ServiceEndpointResolver sut = new ServiceEndpointResolver(LOGGER, SERVICE_NAME, SERVICE_LABEL, SERVICE_LABEL_VALUE, NAMESPACE, KUBERNETES_MASTER_URL, API_TOKEN);
+        ServiceEndpointResolver sut = new ServiceEndpointResolver(LOGGER, SERVICE_NAME, SERVICE_LABEL, SERVICE_LABEL_VALUE, NAMESPACE, NAMESPACE_DISCOVERY, KUBERNETES_MASTER_URL, API_TOKEN);
         List<DiscoveryNode> nodes = sut.resolve();
 
         assertEquals(0, nodes.size());
@@ -131,11 +132,23 @@ public class ServiceEndpointResolverTest {
         Endpoints discoveryNode = createEndpoints(2);
         nodesWithLabel.getItems().add(discoveryNode);
 
-        ServiceEndpointResolver sut = new ServiceEndpointResolver(LOGGER, SERVICE_NAME, SERVICE_LABEL, SERVICE_LABEL_VALUE, NAMESPACE, KUBERNETES_MASTER_URL, API_TOKEN);
+        ServiceEndpointResolver sut = new ServiceEndpointResolver(LOGGER, SERVICE_NAME, SERVICE_LABEL, SERVICE_LABEL_VALUE, NAMESPACE, NAMESPACE_DISCOVERY, KUBERNETES_MASTER_URL, API_TOKEN);
         List<DiscoveryNode> nodes = sut.resolve();
 
         assertEquals(1, nodes.size());
         assertEquals(2, nodes.get(0).getPrivateAddress().getPort());
+    }
+
+    @Test
+    public void resolveWithoutNamespaceDiscovery() {
+        Endpoints discoveryNode = createEndpoints(1);
+        nodesInNamespace.getItems().add(discoveryNode);
+
+        ServiceEndpointResolver sut = new ServiceEndpointResolver(LOGGER, SERVICE_NAME, null, null, NAMESPACE, false, KUBERNETES_MASTER_URL, API_TOKEN);
+        List<DiscoveryNode> nodes = sut.resolve();
+
+        assertEquals(0, nodes.size());
+
     }
 
     @Test
