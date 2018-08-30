@@ -102,6 +102,12 @@ final class HazelcastKubernetesDiscoveryStrategy
     }
 
     public Iterable<DiscoveryNode> discoverNodes() {
+        List<DiscoveryNode> nodes = endpointResolver.resolve();
+        if (logger.isFineEnabled) {
+            for ( DiscoveryNode node : nodes ) {
+                logger.fine("Discovered node: " + node.getAddress().toString())
+            }
+        }
         return endpointResolver.resolve();
     }
 
