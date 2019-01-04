@@ -200,7 +200,7 @@ config.getPartitionGroupConfig()
 Note the following aspects of `ZONE_AWARE`:
  * Kubernetes cluster must provide the [well-known Kubernetes annotations](https://kubernetes.io/docs/reference/kubernetes-api/labels-annotations-taints/#failure-domainbetakubernetesiozone)
  * Retrieving Zone Name uses Kubernetes API, so RBAC must be configured as described [here](#granting-permissions-to-use-kubernetes-api)
- * `ZONE_AWARE` feature works correctly when Hazelcast members are distributed equality in all zones, so your Kubernetes cluster must orchestrate PODs equally
+ * `ZONE_AWARE` feature works correctly when Hazelcast members are distributed equally in all zones, so your Kubernetes cluster must orchestrate PODs equally
  
  Note also that retrieving Zone Name assumes that your container's hostname is the same as POD Name, which is almost always true. If you happen to change your hostname in the container, then please define the following environment variable:
  
