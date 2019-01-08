@@ -181,7 +181,9 @@ There are 2 properties to configure the plugin:
 
 ### Zone Aware
 
-When using `ZONE_AWARE` configuration, backups are created in the other availability zone. 
+When using `ZONE_AWARE` configuration, backups are created in the other availability zone.
+
+**Note**: Your Kubernetes cluster must orchestrate Hazelcast Member PODs equally between the availability zones, otherwise Zone Aware feature may not work correctly.
 
 #### XML Configuration
 
