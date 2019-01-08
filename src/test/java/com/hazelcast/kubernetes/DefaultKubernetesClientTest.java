@@ -42,6 +42,7 @@ public class DefaultKubernetesClientTest {
     private static final String KUBERNETES_MASTER_IP = "localhost";
 
     private static final String TOKEN = "sample-token";
+    private static final String CA_CERTIFICATE = "sample-ca-certificate";
     private static final String NAMESPACE = "sample-namespace";
 
     private static final String SAMPLE_ADDRESS_1 = "192.168.0.25";
@@ -62,7 +63,7 @@ public class DefaultKubernetesClientTest {
     @Before
     public void setUp() {
         String kubernetesMasterUrl = String.format("http://%s:%d", KUBERNETES_MASTER_IP, wireMockRule.port());
-        kubernetesClient = new DefaultKubernetesClient(kubernetesMasterUrl, TOKEN);
+        kubernetesClient = new DefaultKubernetesClient(kubernetesMasterUrl, TOKEN, CA_CERTIFICATE);
     }
 
     @Test
