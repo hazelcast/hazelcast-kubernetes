@@ -176,6 +176,20 @@ public class DefaultKubernetesClientTest {
         kubernetesClient.endpoints(NAMESPACE);
     }
 
+    @Test(expected = KubernetesClientException.class)
+    public void nullToken() {
+        // given
+        String kubernetesMasterUrl = String.format("http://%s:%d", KUBERNETES_MASTER_IP, wireMockRule.port());
+        KubernetesClient kubernetesClient = new DefaultKubernetesClient(kubernetesMasterUrl, TOKEN, null);
+
+        stubFor(get(urlEqualTo(String.format("/api/v1/namespaces/%s/pods", NAMESPACE)))
+                .withHeader("Authorization", equalTo(String.format("Bearer %s", TOKEN)))
+                .willReturn(aResponse().withStatus(200).withBody(malformedBody())));
+
+        // when
+        kubernetesClient.endpoints(NAMESPACE);
+    }
+
     /**
      * Real response recorded from the Kubernetes API call "/api/v1/namespaces/{namespace}/pods".
      */

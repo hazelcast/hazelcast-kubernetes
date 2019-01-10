@@ -293,7 +293,7 @@ class DefaultKubernetesClient
     }
 
     /**
-     * Generates CA Certificate from the default CA Cert file (which always exists in the Kubernetes POD).
+     * Generates CA Certificate from the default CA Cert file or from the externally provided "ca-certificate" property.
      */
     private Certificate generateCertificate()
             throws IOException, CertificateException {
