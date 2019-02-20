@@ -239,7 +239,8 @@ final class HazelcastKubernetesDiscoveryStrategy
         }
     }
 
-    private KubernetesClient buildKubernetesClient(String namespace, String kubernetesMaster, String accessToken, String caCertificate) {
+    private KubernetesClient buildKubernetesClient(String namespace, String kubernetesMaster, String accessToken,
+                                                   String caCertificate) {
         return new KubernetesClient(namespace, kubernetesMaster, accessToken, caCertificate);
     }
 
