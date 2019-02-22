@@ -62,30 +62,21 @@ class KubernetesApiEndpointResolver
 
     private List<DiscoveryNode> getSimpleDiscoveryNodes(List<Endpoint> endpoints) {
         List<DiscoveryNode> discoveredNodes = new ArrayList<DiscoveryNode>();
-        resolveAddresses(discoveredNodes, endpoints);
-        return discoveredNodes;
-    }
-
-    private void resolveNotReadyAddresses(List<DiscoveryNode> discoveredNodes, List<Endpoint> notReadyAddresses) {
-        if (Boolean.TRUE.equals(resolveNotReadyAddresses)) {
-            resolveAddresses(discoveredNodes, notReadyAddresses);
-        }
-    }
-
-    private void resolveAddresses(List<DiscoveryNode> discoveredNodes, List<Endpoint> addresses) {
-        for (Endpoint address : addresses) {
+        for (Endpoint address : endpoints) {
             addAddress(discoveredNodes, address);
         }
+        return discoveredNodes;
     }
 
     private void addAddress(List<DiscoveryNode> discoveredNodes, Endpoint endpoint) {
         if (Boolean.TRUE.equals(resolveNotReadyAddresses) || endpoint.isReady()) {
-            Address address = createAddress(endpoint.getPrivateAddress());
+            Address privateAddress = createAddress(endpoint.getPrivateAddress());
             Address publicAddress = createAddress(endpoint.getPublicAddress());
             discoveredNodes
-                    .add(new SimpleDiscoveryNode(address, publicAddress, endpoint.getAdditionalProperties()));
+                    .add(new SimpleDiscoveryNode(privateAddress, publicAddress, endpoint.getAdditionalProperties()));
             if (logger.isFinestEnabled()) {
-                logger.finest("Found node service with address: " + address);
+                logger.finest(String.format("Found node service with addresses (private, public): %s, %s ", privateAddress,
+                        publicAddress));
             }
         }
     }
