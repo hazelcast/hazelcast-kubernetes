@@ -244,12 +244,14 @@ clientConfig.getNetworkConfig().getKubernetesConfig().setEnabled(true)
 
 ### Outside Kubernetes Cluster
 
+If your Hazelcast cluster is deployed on Kubernetes, but Hazelcast Client is in a completely different network, then they can connect only through the public Internet network.
+
 To use **Hazelcast Dummy Client** (`<smart-routing>false</smart-routing>`) you don't need any plugin, it's enough to expose your Hazelcast cluster with a LoadBalancer (or NodePort) service and set its IP/port as the TCP/IP Hazelcast Client configuration. Dummy Client, however, compromises the performance, since all the communication happens against a single Hazelcast member.
 
 To configure **Hazelcast Smart Client**, you need to perform the following steps:
 * Expose each Hazelcast Member POD with a separate LoadBalancer or NodePort service (the simplest way to do it is to install [Metacontroller](https://metacontroller.app/) and [service-per-pod](https://github.com/GoogleCloudPlatform/metacontroller/tree/master/examples/service-per-pod) Decorator Controller)
 * Configure ServiceAccount with ClusterRole having at least `get` and `list` permissions to the following resources: `endpoints`, `pods`, `nodes`, `services`
-* Use credentials from the created ServiceAccount in the Hazelcast Client configuration
+* Use credentials from the created ServiceAccount in the Hazelcast Client configuration (credentials can be fetched with `kubectl get secret <sevice-account-secret> -o jsonpath={.data.token} | base64 -d` and `kubectl get secret <sevice-account-secret> -o jsonpath={.data.ca\\.crt} | base64 -d`)
 
 ```xml
 <hazelcast-client>
