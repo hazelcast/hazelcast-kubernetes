@@ -127,7 +127,6 @@ There are 4 properties to configure the plugin, all of them are optional.
  * `kubernetes-master`: URL of Kubernetes Master; `https://kubernetes.default.svc` by default
  * `api-token`: API Token to Kubernetes API; if not specified, the value is taken from the file `/var/run/secrets/kubernetes.io/serviceaccount/token`
  * `ca-certificate`: CA Certificate for Kubernetes API; if not specified, the value is taken from the file `/var/run/secrets/kubernetes.io/serviceaccount/ca.crt`
- * `service-port`: Specifies the port on which Hazelcast is run; if not specified, the port is resolved automatically from Kubernetes API
  
 You should use either `service-name` or (`service-label-name` and `service-label-value`), specifying all 3 parameters does not make sense.
 
@@ -181,7 +180,6 @@ config.getNetworkConfig().getJoin().getKubernetesConfig().setEnabled(true)
 There are 2 properties to configure the plugin:
  * `service-dns` (required): service DNS, usually in the form of `SERVICE-NAME.NAMESPACE.svc.cluster.local`
  * `service-dns-time` (optional): custom time for how long the DNS Lookup is checked
- * `service-port`: Specifies the port on which Hazelcast is run; if not specified, the default port `5701` is used
 
 **Note**: In this README, only XML configurations are presented, however you can achieve exactly the same effect using Java-based configurations.
 
