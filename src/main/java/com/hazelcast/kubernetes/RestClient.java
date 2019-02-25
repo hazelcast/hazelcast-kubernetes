@@ -109,7 +109,7 @@ final class RestClient {
 
             checkHttpOk(method, connection);
             return read(connection.getInputStream());
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw new RestClientException("Failure in executing REST call", e);
         } finally {
             if (connection != null) {
@@ -133,12 +133,10 @@ final class RestClient {
                 errorMessage = read(connection.getErrorStream());
             } catch (Exception e) {
                 throw new RestClientException(
-                        String.format("Failure executing: %s at: %s. Error Code: %s", method, url,
-                                connection.getResponseCode()));
+                        String.format("Failure executing: %s at: %s", method, url), connection.getResponseCode());
             }
-            throw new RestClientException(
-                    String.format("Failure executing: %s at: %s. Error Code: %s, Message: %s", method, url,
-                            connection.getResponseCode(), errorMessage));
+            throw new RestClientException(String.format("Failure executing: %s at: %s. Message: %s", method, url, errorMessage),
+                    connection.getResponseCode());
 
         }
     }

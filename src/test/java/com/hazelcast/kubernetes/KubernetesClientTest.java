@@ -35,6 +35,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonMap;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -559,13 +560,43 @@ public class KubernetesClientTest {
                 + "}";
     }
 
-    @Test(expected = KubernetesClientException.class)
+    @Test
     public void forbidden() {
         // given
         String forbiddenBody = "\"reason\":\"Forbidden\"";
         stubFor(get(urlEqualTo(String.format("/api/v1/namespaces/%s/pods", NAMESPACE)))
                 .withHeader("Authorization", equalTo(String.format("Bearer %s", TOKEN)))
-                .willReturn(aResponse().withStatus(501).withBody(forbiddenBody)));
+                .willReturn(aResponse().withStatus(403).withBody(forbiddenBody)));
+
+        // when
+        List<Endpoint> result = kubernetesClient.endpoints();
+
+        // then
+        assertEquals(emptyList(), result);
+    }
+
+    @Test
+    public void wrongApiToken() {
+        // given
+        String unauthorizedBody = "\"reason\":\"Unauthorized\"";
+        stubFor(get(urlEqualTo(String.format("/api/v1/namespaces/%s/pods", NAMESPACE)))
+                .withHeader("Authorization", equalTo(String.format("Bearer %s", TOKEN)))
+                .willReturn(aResponse().withStatus(401).withBody(unauthorizedBody)));
+
+        // when
+        List<Endpoint> result = kubernetesClient.endpoints();
+
+        // then
+        assertEquals(emptyList(), result);
+    }
+
+    @Test(expected = KubernetesClientException.class)
+    public void unknownException() {
+        // given
+        String notRetriedErrorBody = "\"reason\":\"Forbidden\"";
+        stubFor(get(urlEqualTo(String.format("/api/v1/namespaces/%s/pods", NAMESPACE)))
+                .withHeader("Authorization", equalTo(String.format("Bearer %s", TOKEN)))
+                .willReturn(aResponse().withStatus(501).withBody(notRetriedErrorBody)));
 
         // when
         kubernetesClient.endpoints();

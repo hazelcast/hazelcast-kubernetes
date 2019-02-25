@@ -436,6 +436,7 @@ class KubernetesClient {
      * @return parsed JSON
      * @throws KubernetesClientException if Kubernetes API didn't respond with 200 and a valid JSON content
      */
+    @SuppressWarnings("checkstyle:magicnumber")
     private JsonObject callGet(final String urlString) {
         try {
             return RetryUtils.retry(new Callable<JsonObject>() {
@@ -448,9 +449,22 @@ class KubernetesClient {
                             .asObject();
                 }
             }, RETRIES, NON_RETRYABLE_KEYWORDS);
+        } catch (RestClientException e) {
+            if (e.getHttpErrorCode() == 401) {
+                LOGGER.severe("Kubernetes API authorization failure, please check your 'api-token' property");
+                LOGGER.finest(e);
+            } else if (e.getHttpErrorCode() == 403) {
+                LOGGER.severe(
+                        "Kubernetes API forbidden access, please check that your Service Account have the correct (Cluster) Role "
+                                + "rules");
+                LOGGER.finest(e);
+            } else {
+                throw new KubernetesClientException("RestClientException exception in KubernetesClient", e);
+            }
         } catch (Exception e) {
-            throw new KubernetesClientException("Failure in KubernetesClient", e);
+            throw new KubernetesClientException("Unknown exception in KubernetesClient", e);
         }
+        return new JsonObject();
     }
 
     private static JsonArray toJsonArray(JsonValue jsonValue) {
