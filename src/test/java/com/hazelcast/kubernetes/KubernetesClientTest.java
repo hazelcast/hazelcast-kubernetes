@@ -590,7 +590,7 @@ public class KubernetesClientTest {
         assertEquals(emptyList(), result);
     }
 
-    @Test(expected = KubernetesClientException.class)
+    @Test(expected = RestClientException.class)
     public void unknownException() {
         // given
         String notRetriedErrorBody = "\"reason\":\"Forbidden\"";

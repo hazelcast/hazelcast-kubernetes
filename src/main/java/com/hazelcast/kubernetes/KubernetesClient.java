@@ -33,6 +33,7 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 
 /**
  * Responsible for connecting to the Kubernetes API.
@@ -69,8 +70,12 @@ class KubernetesClient {
      * @see <a href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.11/#list-143">Kubernetes Endpoint API</a>
      */
     List<Endpoint> endpoints() {
-        String urlString = String.format("%s/api/v1/namespaces/%s/pods", kubernetesMaster, namespace);
-        return enrichWithPublicAddresses(parsePodsList(callGet(urlString)));
+        try {
+            String urlString = String.format("%s/api/v1/namespaces/%s/pods", kubernetesMaster, namespace);
+            return enrichWithPublicAddresses(parsePodsList(callGet(urlString)));
+        } catch (RestClientException e) {
+            return handleKnownException(e);
+        }
     }
 
     /**
@@ -83,9 +88,13 @@ class KubernetesClient {
      * @see <a href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.11/#list-143">Kubernetes Endpoint API</a>
      */
     List<Endpoint> endpointsByLabel(String serviceLabel, String serviceLabelValue) {
-        String param = String.format("labelSelector=%s=%s", serviceLabel, serviceLabelValue);
-        String urlString = String.format("%s/api/v1/namespaces/%s/endpoints?%s", kubernetesMaster, namespace, param);
-        return enrichWithPublicAddresses(parseEndpointsList(callGet(urlString)));
+        try {
+            String param = String.format("labelSelector=%s=%s", serviceLabel, serviceLabelValue);
+            String urlString = String.format("%s/api/v1/namespaces/%s/endpoints?%s", kubernetesMaster, namespace, param);
+            return enrichWithPublicAddresses(parseEndpointsList(callGet(urlString)));
+        } catch (RestClientException e) {
+            return handleKnownException(e);
+        }
     }
 
     /**
@@ -96,8 +105,12 @@ class KubernetesClient {
      * @see <a href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.11/#list-143">Kubernetes Endpoint API</a>
      */
     List<Endpoint> endpointsByName(String endpointName) {
-        String urlString = String.format("%s/api/v1/namespaces/%s/endpoints/%s", kubernetesMaster, namespace, endpointName);
-        return enrichWithPublicAddresses(parseEndpoints(callGet(urlString)));
+        try {
+            String urlString = String.format("%s/api/v1/namespaces/%s/endpoints/%s", kubernetesMaster, namespace, endpointName);
+            return enrichWithPublicAddresses(parseEndpoints(callGet(urlString)));
+        } catch (RestClientException e) {
+            return handleKnownException(e);
+        }
     }
 
     /**
@@ -436,35 +449,32 @@ class KubernetesClient {
      * @return parsed JSON
      * @throws KubernetesClientException if Kubernetes API didn't respond with 200 and a valid JSON content
      */
-    @SuppressWarnings("checkstyle:magicnumber")
     private JsonObject callGet(final String urlString) {
-        try {
-            return RetryUtils.retry(new Callable<JsonObject>() {
-                @Override
-                public JsonObject call() {
-                    return Json
-                            .parse(RestClient.create(urlString).withHeader("Authorization", String.format("Bearer %s", apiToken))
-                                             .withCaCertificate(caCertificate)
-                                             .get())
-                            .asObject();
-                }
-            }, RETRIES, NON_RETRYABLE_KEYWORDS);
-        } catch (RestClientException e) {
-            if (e.getHttpErrorCode() == 401) {
-                LOGGER.severe("Kubernetes API authorization failure, please check your 'api-token' property");
-                LOGGER.finest(e);
-            } else if (e.getHttpErrorCode() == 403) {
-                LOGGER.severe(
-                        "Kubernetes API forbidden access, please check that your Service Account have the correct (Cluster) Role "
-                                + "rules");
-                LOGGER.finest(e);
-            } else {
-                throw new KubernetesClientException("RestClientException exception in KubernetesClient", e);
+        return RetryUtils.retry(new Callable<JsonObject>() {
+            @Override
+            public JsonObject call() {
+                return Json
+                        .parse(RestClient.create(urlString).withHeader("Authorization", String.format("Bearer %s", apiToken))
+                                         .withCaCertificate(caCertificate)
+                                         .get())
+                        .asObject();
             }
-        } catch (Exception e) {
-            throw new KubernetesClientException("Unknown exception in KubernetesClient", e);
+        }, RETRIES, NON_RETRYABLE_KEYWORDS);
+    }
+
+    @SuppressWarnings("checkstyle:magicnumber")
+    private static List<Endpoint> handleKnownException(RestClientException e) {
+        if (e.getHttpErrorCode() == 401) {
+            LOGGER.severe("Kubernetes API authorization failure, please check your 'api-token' property");
+        } else if (e.getHttpErrorCode() == 403) {
+            LOGGER.severe(
+                    "Kubernetes API forbidden access, please check that your Service Account have the correct (Cluster) Role "
+                            + "rules");
+        } else {
+            throw e;
         }
-        return new JsonObject();
+        LOGGER.finest(e);
+        return emptyList();
     }
 
     private static JsonArray toJsonArray(JsonValue jsonValue) {
