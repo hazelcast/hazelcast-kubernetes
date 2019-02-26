@@ -292,7 +292,7 @@ To configure **Hazelcast Smart Client**, you need to perform the following steps
 </hazelcast-client>
 ```
 
-**Note:** Hazelcast Client outside Kubernetes cluster works only in the **Kubernetes API** mode.
+**Note:** Hazelcast Client outside Kubernetes cluster works only in the **Kubernetes API** mode (it does not work in the **DNS Lookup** mode).
 
 ## Scaling Hazelcast cluster in Kubernetes
 
