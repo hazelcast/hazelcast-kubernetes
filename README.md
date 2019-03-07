@@ -255,7 +255,7 @@ To use **Hazelcast Dummy Client** (`<smart-routing>false</smart-routing>`) you d
 To configure **Hazelcast Smart Client**, you need to perform the following steps:
 * Expose each Hazelcast Member POD with a separate LoadBalancer or NodePort service (the simplest way to do it is to install [Metacontroller](https://metacontroller.app/) and [service-per-pod](https://github.com/GoogleCloudPlatform/metacontroller/tree/master/examples/service-per-pod) Decorator Controller)
 * Configure ServiceAccount with ClusterRole having at least `get` and `list` permissions to the following resources: `endpoints`, `pods`, `nodes`, `services`
-* Use credentials from the created ServiceAccount in the Hazelcast Client configuration (credentials can be fetched with `kubectl get secret <sevice-account-secret> -o jsonpath={.data.token} | base64 -d` and `kubectl get secret <sevice-account-secret> -o jsonpath={.data.ca\\.crt} | base64 -d`)
+* Use credentials from the created ServiceAccount in the Hazelcast Client configuration (credentials can be fetched with `kubectl get secret <sevice-account-secret> -o jsonpath={.data.token} | base64 --decode` and `kubectl get secret <sevice-account-secret> -o jsonpath={.data.ca\\.crt} | base64 --decode`)
 
 ```xml
 <hazelcast-client>
