@@ -104,7 +104,7 @@ final class HazelcastKubernetesDiscoveryStrategy
     }
 
     private String getApiToken(Map<String, Comparable> properties) {
-        String apiToken = getOrDefault(properties, KUBERNETES_SYSTEM_PREFIX, KUBERNETES_API_TOKEN, null);
+        String apiToken = getOrNull(properties, KUBERNETES_SYSTEM_PREFIX, KUBERNETES_API_TOKEN);
         if (apiToken == null) {
             apiToken = readAccountToken();
         }
@@ -112,7 +112,7 @@ final class HazelcastKubernetesDiscoveryStrategy
     }
 
     private String caCertificate(Map<String, Comparable> properties) {
-        String caCertificate = getOrDefault(properties, KUBERNETES_SYSTEM_PREFIX, KUBERNETES_CA_CERTIFICATE, null);
+        String caCertificate = getOrNull(properties, KUBERNETES_SYSTEM_PREFIX, KUBERNETES_CA_CERTIFICATE);
         if (caCertificate == null) {
             caCertificate = readCaCertificate();
         }
