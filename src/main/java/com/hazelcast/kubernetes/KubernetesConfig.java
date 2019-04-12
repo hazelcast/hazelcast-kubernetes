@@ -219,11 +219,11 @@ final class KubernetesConfig {
         }
     }
 
-    Mode getMode() {
+    DiscoveryMode getMode() {
         if (serviceDns != null) {
-            return Mode.DNS_LOOKUP;
+            return DiscoveryMode.DNS_LOOKUP;
         } else {
-            return Mode.KUBERNETES_API;
+            return DiscoveryMode.KUBERNETES_API;
         }
     }
 
@@ -290,7 +290,7 @@ final class KubernetesConfig {
                 + "kubernetes-master: " + kubernetesMasterUrl + "}";
     }
 
-    enum Mode {
+    enum DiscoveryMode {
         DNS_LOOKUP,
         KUBERNETES_API
     }

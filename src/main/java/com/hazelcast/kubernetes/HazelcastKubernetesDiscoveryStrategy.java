@@ -16,7 +16,7 @@
 
 package com.hazelcast.kubernetes;
 
-import com.hazelcast.kubernetes.KubernetesConfig.Mode;
+import com.hazelcast.kubernetes.KubernetesConfig.DiscoveryMode;
 import com.hazelcast.logging.ILogger;
 import com.hazelcast.spi.discovery.AbstractDiscoveryStrategy;
 import com.hazelcast.spi.discovery.DiscoveryNode;
@@ -43,7 +43,7 @@ final class HazelcastKubernetesDiscoveryStrategy
 
         client = buildKubernetesClient(config);
 
-        if (Mode.DNS_LOOKUP.equals(config.getMode())) {
+        if (DiscoveryMode.DNS_LOOKUP.equals(config.getMode())) {
             endpointResolver = new DnsEndpointResolver(logger, config.getServiceDns(), config.getServicePort(),
                     config.getServiceDnsTimeout());
         } else {

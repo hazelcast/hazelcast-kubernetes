@@ -29,7 +29,7 @@ import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.hazelcast.kubernetes.KubernetesConfig.Mode;
+import static com.hazelcast.kubernetes.KubernetesConfig.DiscoveryMode;
 import static com.hazelcast.kubernetes.KubernetesProperties.KUBERNETES_API_RETIRES;
 import static com.hazelcast.kubernetes.KubernetesProperties.KUBERNETES_API_TOKEN;
 import static com.hazelcast.kubernetes.KubernetesProperties.KUBERNETES_CA_CERTIFICATE;
@@ -61,7 +61,7 @@ public class KubernetesConfigTest {
         KubernetesConfig config = new KubernetesConfig(properties);
 
         // then
-        assertEquals(Mode.DNS_LOOKUP, config.getMode());
+        assertEquals(DiscoveryMode.DNS_LOOKUP, config.getMode());
         assertEquals(serviceDns, config.getServiceDns());
         assertEquals(serviceDnsTimeout, config.getServiceDnsTimeout());
         assertEquals(servicePort, config.getServicePort());
@@ -76,7 +76,7 @@ public class KubernetesConfigTest {
         KubernetesConfig config = new KubernetesConfig(properties);
 
         // then
-        assertEquals(Mode.KUBERNETES_API, config.getMode());
+        assertEquals(DiscoveryMode.KUBERNETES_API, config.getMode());
         assertEquals("default", config.getNamespace());
         assertEquals(false, config.isResolveNotReadyAddresses());
         assertEquals(TEST_API_TOKEN, config.getKubernetesApiToken());
@@ -94,7 +94,7 @@ public class KubernetesConfigTest {
         KubernetesConfig config = new KubernetesConfig(properties);
 
         // then
-        assertEquals(Mode.KUBERNETES_API, config.getMode());
+        assertEquals(DiscoveryMode.KUBERNETES_API, config.getMode());
         assertEquals(serviceName, config.getServiceName());
     }
 
@@ -111,7 +111,7 @@ public class KubernetesConfigTest {
         KubernetesConfig config = new KubernetesConfig(properties);
 
         // then
-        assertEquals(Mode.KUBERNETES_API, config.getMode());
+        assertEquals(DiscoveryMode.KUBERNETES_API, config.getMode());
         assertEquals(serviceLabelName, config.getServiceLabelName());
         assertEquals(serviceLabelValue, config.getServiceLabelValue());
     }
