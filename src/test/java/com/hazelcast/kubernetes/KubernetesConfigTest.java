@@ -116,7 +116,7 @@ public class KubernetesConfigTest {
         assertEquals(serviceLabelName, config.getServiceLabelName());
         assertEquals(serviceLabelValue, config.getServiceLabelValue());
     }
-    
+
     @Test
     public void kubernetesApiNodeNameAsExternalAddress() {
         // given

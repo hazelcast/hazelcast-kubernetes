@@ -60,7 +60,7 @@ public class KubernetesClientTest {
         stubFor(get(urlMatching("/api/.*")).atPriority(5)
                                            .willReturn(aResponse().withStatus(401).withBody("\"reason\":\"Forbidden\"")));
     }
-    
+
     private KubernetesClient newKubernetesClient(boolean useNodeNameAsExternalAddress) {
         String kubernetesMasterUrl = String.format("http://%s:%d", KUBERNETES_MASTER_IP, wireMockRule.port());
         return new KubernetesClient(NAMESPACE, kubernetesMasterUrl, TOKEN, CA_CERTIFICATE, RETRIES, useNodeNameAsExternalAddress);
@@ -440,7 +440,7 @@ public class KubernetesClientTest {
         assertThat(format(result), containsInAnyOrder(ready("192.168.0.25", 5701), ready("172.17.0.5", 5702)));
         assertThat(formatPublic(result), containsInAnyOrder(ready("35.232.226.200", 31916), ready("35.232.226.201", 31917)));
     }
-    
+
     @Test
     public void endpointsByNamespaceWithNodeName() {
         // given
