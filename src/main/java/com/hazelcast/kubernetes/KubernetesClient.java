@@ -53,15 +53,18 @@ class KubernetesClient {
     private final String apiToken;
     private final String caCertificate;
     private final int retries;
+    private boolean useNodeNameAsExternalAddress;
 
     private boolean isNoPublicIpAlreadyLogged;
 
-    KubernetesClient(String namespace, String kubernetesMaster, String apiToken, String caCertificate, int retries) {
+    KubernetesClient(String namespace, String kubernetesMaster, String apiToken, String caCertificate, int retries,
+            boolean useNodeNameAsExternalAddress) {
         this.namespace = namespace;
         this.kubernetesMaster = kubernetesMaster;
         this.apiToken = apiToken;
         this.caCertificate = caCertificate;
         this.retries = retries;
+        this.useNodeNameAsExternalAddress = useNodeNameAsExternalAddress;
     }
 
     /**
@@ -296,15 +299,22 @@ class KubernetesClient {
                     // Load Balancer public IP cannot be found, try using NodePort.
                     Integer nodePort = extractNodePort(serviceJson);
                     String node = nodes.get(privateAddress);
-                    String nodePublicIp;
+                    String nodePublicAddress;
                     if (cachedNodePublicIps.containsKey(node)) {
-                        nodePublicIp = cachedNodePublicIps.get(node);
+                        nodePublicAddress = cachedNodePublicIps.get(node);
                     } else {
-                        String nodeUrl = String.format("%s/api/v1/nodes/%s", kubernetesMaster, node);
-                        nodePublicIp = extractNodePublicIp(callGet(nodeUrl));
-                        cachedNodePublicIps.put(node, nodePublicIp);
+                        if (useNodeNameAsExternalAddress) {
+                            String msg = "Failed to find public IP for node, using node name instead"
+                                    + " (must be available from client): " + node;
+                            LOGGER.info(msg);
+                            nodePublicAddress = node;
+                        } else {
+                            String nodeUrl = String.format("%s/api/v1/nodes/%s", kubernetesMaster, node);
+                            nodePublicAddress = extractNodePublicIp(callGet(nodeUrl));
+                        }
+                        cachedNodePublicIps.put(node, nodePublicAddress);
                     }
-                    publicIps.put(privateAddress, nodePublicIp);
+                    publicIps.put(privateAddress, nodePublicAddress);
                     publicPorts.put(privateAddress, nodePort);
                 }
             }

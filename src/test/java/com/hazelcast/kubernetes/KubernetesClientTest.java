@@ -56,10 +56,14 @@ public class KubernetesClientTest {
 
     @Before
     public void setUp() {
-        String kubernetesMasterUrl = String.format("http://%s:%d", KUBERNETES_MASTER_IP, wireMockRule.port());
-        kubernetesClient = new KubernetesClient(NAMESPACE, kubernetesMasterUrl, TOKEN, CA_CERTIFICATE, RETRIES);
+        kubernetesClient = newKubernetesClient(false);
         stubFor(get(urlMatching("/api/.*")).atPriority(5)
                                            .willReturn(aResponse().withStatus(401).withBody("\"reason\":\"Forbidden\"")));
+    }
+    
+    private KubernetesClient newKubernetesClient(boolean useNodeNameAsExternalAddress) {
+        String kubernetesMasterUrl = String.format("http://%s:%d", KUBERNETES_MASTER_IP, wireMockRule.port());
+        return new KubernetesClient(NAMESPACE, kubernetesMasterUrl, TOKEN, CA_CERTIFICATE, RETRIES, useNodeNameAsExternalAddress);
     }
 
     @Test
@@ -436,6 +440,26 @@ public class KubernetesClientTest {
         assertThat(format(result), containsInAnyOrder(ready("192.168.0.25", 5701), ready("172.17.0.5", 5702)));
         assertThat(formatPublic(result), containsInAnyOrder(ready("35.232.226.200", 31916), ready("35.232.226.201", 31917)));
     }
+    
+    @Test
+    public void endpointsByNamespaceWithNodeName() {
+        // given
+        // reuse setup from another test case
+        endpointsByNamespaceWithNodePublicIp();
+
+        // create KubernetesClient with useNodeNameAsExternalAddress=true, disable /nodes resource
+        kubernetesClient = newKubernetesClient(true);
+        String forbiddenBody = "\"reason\":\"Forbidden\"";
+        stub("/api/v1/nodes/node-name-1", 403, forbiddenBody);
+        stub("/api/v1/nodes/node-name-2", 403, forbiddenBody);
+
+        // when
+        List<Endpoint> result = kubernetesClient.endpoints();
+
+        // then
+        assertThat(format(result), containsInAnyOrder(ready("192.168.0.25", 5701), ready("172.17.0.5", 5702)));
+        assertThat(formatPublic(result), containsInAnyOrder(ready("node-name-1", 31916), ready("node-name-2", 31917)));
+    }
 
     private static String podsListResponse() {
         //language=JSON
@@ -565,9 +589,7 @@ public class KubernetesClientTest {
     public void forbidden() {
         // given
         String forbiddenBody = "\"reason\":\"Forbidden\"";
-        stubFor(get(urlEqualTo(String.format("/api/v1/namespaces/%s/pods", NAMESPACE)))
-                .withHeader("Authorization", equalTo(String.format("Bearer %s", TOKEN)))
-                .willReturn(aResponse().withStatus(403).withBody(forbiddenBody)));
+        stub(String.format("/api/v1/namespaces/%s/pods", NAMESPACE), 403, forbiddenBody);
 
         // when
         List<Endpoint> result = kubernetesClient.endpoints();
@@ -580,9 +602,7 @@ public class KubernetesClientTest {
     public void wrongApiToken() {
         // given
         String unauthorizedBody = "\"reason\":\"Unauthorized\"";
-        stubFor(get(urlEqualTo(String.format("/api/v1/namespaces/%s/pods", NAMESPACE)))
-                .withHeader("Authorization", equalTo(String.format("Bearer %s", TOKEN)))
-                .willReturn(aResponse().withStatus(401).withBody(unauthorizedBody)));
+        stub(String.format("/api/v1/namespaces/%s/pods", NAMESPACE), 401, unauthorizedBody);
 
         // when
         List<Endpoint> result = kubernetesClient.endpoints();
@@ -595,9 +615,7 @@ public class KubernetesClientTest {
     public void unknownException() {
         // given
         String notRetriedErrorBody = "\"reason\":\"Forbidden\"";
-        stubFor(get(urlEqualTo(String.format("/api/v1/namespaces/%s/pods", NAMESPACE)))
-                .withHeader("Authorization", equalTo(String.format("Bearer %s", TOKEN)))
-                .willReturn(aResponse().withStatus(501).withBody(notRetriedErrorBody)));
+        stub(String.format("/api/v1/namespaces/%s/pods", NAMESPACE), 501, notRetriedErrorBody);
 
         // when
         kubernetesClient.endpoints();
@@ -626,9 +644,13 @@ public class KubernetesClientTest {
     }
 
     private static void stub(String url, String response) {
+        stub(url, 200, response);
+    }
+
+    private static void stub(String url, int status, String response) {
         stubFor(get(urlEqualTo(url))
                 .withHeader("Authorization", equalTo(String.format("Bearer %s", TOKEN)))
-                .willReturn(aResponse().withStatus(200).withBody(response)));
+                .willReturn(aResponse().withStatus(status).withBody(response)));
     }
 
     private static void stub(String url, Map<String, String> queryParams, String response) {
