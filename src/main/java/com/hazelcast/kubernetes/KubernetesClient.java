@@ -304,9 +304,7 @@ class KubernetesClient {
                         nodePublicAddress = cachedNodePublicIps.get(node);
                     } else {
                         if (useNodeNameAsExternalAddress) {
-                            String msg = "Failed to find public IP for node, using node name instead"
-                                    + " (must be available from client): " + node;
-                            LOGGER.info(msg);
+                            LOGGER.info("Using node name instead of public IP for node, must be available from client: " + node);
                             nodePublicAddress = node;
                         } else {
                             String nodeUrl = String.format("%s/api/v1/nodes/%s", kubernetesMaster, node);
