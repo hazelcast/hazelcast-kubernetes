@@ -129,6 +129,7 @@ There are several properties to configure the plugin, all of them are optional.
  * `kubernetes-master`: URL of Kubernetes Master; `https://kubernetes.default.svc` by default
  * `api-token`: API Token to Kubernetes API; if not specified, the value is taken from the file `/var/run/secrets/kubernetes.io/serviceaccount/token`
  * `ca-certificate`: CA Certificate for Kubernetes API; if not specified, the value is taken from the file `/var/run/secrets/kubernetes.io/serviceaccount/ca.crt`
+ * `service-port`: endpoint port of the service; if specified with a value greater than `0`, it overrides the default; `0` by default
  
 You should use either `service-name` or (`service-label-name` and `service-label-value`), specifying all 3 parameters does not make sense.
 
