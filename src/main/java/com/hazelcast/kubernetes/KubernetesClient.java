@@ -40,6 +40,7 @@ import static java.util.Collections.emptyList;
  *
  * @see <a href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.11/">Kubernetes API</a>
  */
+@SuppressWarnings("checkstyle:methodcount")
 class KubernetesClient {
     private static final ILogger LOGGER = Logger.getLogger(KubernetesClient.class);
 
@@ -303,13 +304,7 @@ class KubernetesClient {
                     if (cachedNodePublicIps.containsKey(node)) {
                         nodePublicAddress = cachedNodePublicIps.get(node);
                     } else {
-                        if (useNodeNameAsExternalAddress) {
-                            LOGGER.info("Using node name instead of public IP for node, must be available from client: " + node);
-                            nodePublicAddress = node;
-                        } else {
-                            String nodeUrl = String.format("%s/api/v1/nodes/%s", kubernetesMaster, node);
-                            nodePublicAddress = extractNodePublicIp(callGet(nodeUrl));
-                        }
+                        nodePublicAddress = externalAddressForNode(node);
                         cachedNodePublicIps.put(node, nodePublicAddress);
                     }
                     publicIps.put(privateAddress, nodePublicAddress);
@@ -428,6 +423,18 @@ class KubernetesClient {
             throw new KubernetesClientException("Cannot fetch nodePort from the service");
         }
         return ports.get(0).asObject().get("nodePort").asInt();
+    }
+
+    private String externalAddressForNode(String node) {
+        String nodeExternalAddress;
+        if (useNodeNameAsExternalAddress) {
+            LOGGER.info("Using node name instead of public IP for node, must be available from client: " + node);
+            nodeExternalAddress = node;
+        } else {
+            String nodeUrl = String.format("%s/api/v1/nodes/%s", kubernetesMaster, node);
+            nodeExternalAddress = extractNodePublicIp(callGet(nodeUrl));
+        }
+        return nodeExternalAddress;
     }
 
     private static String extractNodePublicIp(JsonObject nodeJson) {
