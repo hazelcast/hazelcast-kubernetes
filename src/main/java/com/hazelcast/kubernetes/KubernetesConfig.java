@@ -294,6 +294,7 @@ final class KubernetesConfig {
                 + "service-label-value: " + serviceLabelValue + ", "
                 + "namespace: " + namespace + ", "
                 + "resolve-not-ready-addresses: " + resolveNotReadyAddresses + ", "
+                + "use-node-name-as-external-address: " + useNodeNameAsExternalAddress + ", "
                 + "kubernetes-api-retries: " + kubernetesApiRetries + ", "
                 + "kubernetes-master: " + kubernetesMasterUrl + "}";
     }
