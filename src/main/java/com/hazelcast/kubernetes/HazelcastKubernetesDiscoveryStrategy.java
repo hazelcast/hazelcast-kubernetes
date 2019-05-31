@@ -33,7 +33,7 @@ final class HazelcastKubernetesDiscoveryStrategy
     private final KubernetesClient client;
     private final EndpointResolver endpointResolver;
 
-    private final Map<String, Object> memberMetadata = new HashMap<String, Object>();
+    private final Map<String, String> memberMetadata = new HashMap<String, String>();
 
     HazelcastKubernetesDiscoveryStrategy(ILogger logger, Map<String, Comparable> properties) {
         super(logger, properties);
@@ -64,7 +64,7 @@ final class HazelcastKubernetesDiscoveryStrategy
     }
 
     @Override
-    public Map<String, Object> discoverLocalMetadata() {
+    public Map<String, String> discoverLocalMetadata() {
         if (memberMetadata.isEmpty()) {
             memberMetadata.put(PartitionGroupMetaData.PARTITION_GROUP_ZONE, discoverZone());
         }

@@ -213,7 +213,7 @@ class KubernetesClient {
     private static Endpoint extractEntrypointAddress(JsonValue endpointAddressJson, Integer endpointPort, boolean isReady) {
         String ip = endpointAddressJson.asObject().get("ip").asString();
         Integer port = extractHazelcastServicePortFrom(endpointAddressJson, endpointPort);
-        Map<String, Object> additionalProperties = extractAdditionalPropertiesFrom(endpointAddressJson);
+        Map<String, String> additionalProperties = extractAdditionalPropertiesFrom(endpointAddressJson);
         return new Endpoint(new EndpointAddress(ip, port), isReady, additionalProperties);
     }
 
@@ -225,11 +225,11 @@ class KubernetesClient {
         return endpointPort;
     }
 
-    private static Map<String, Object> extractAdditionalPropertiesFrom(JsonValue endpointAddressJson) {
+    private static Map<String, String> extractAdditionalPropertiesFrom(JsonValue endpointAddressJson) {
         Set<String> knownFieldNames = new HashSet<String>(
                 asList("ip", "nodeName", "targetRef", "hostname", "hazelcast-service-port"));
 
-        Map<String, Object> result = new HashMap<String, Object>();
+        Map<String, String> result = new HashMap<String, String>();
         for (JsonObject.Member member : endpointAddressJson.asObject()) {
             if (!knownFieldNames.contains(member.getName())) {
                 result.put(member.getName(), toString(member.getValue()));
@@ -518,7 +518,7 @@ class KubernetesClient {
         private final EndpointAddress privateAddress;
         private final EndpointAddress publicAddress;
         private final boolean isReady;
-        private final Map<String, Object> additionalProperties;
+        private final Map<String, String> additionalProperties;
 
         Endpoint(EndpointAddress privateAddress, boolean isReady) {
             this.privateAddress = privateAddress;
@@ -527,7 +527,7 @@ class KubernetesClient {
             this.additionalProperties = Collections.emptyMap();
         }
 
-        Endpoint(EndpointAddress privateAddress, boolean isReady, Map<String, Object> additionalProperties) {
+        Endpoint(EndpointAddress privateAddress, boolean isReady, Map<String, String> additionalProperties) {
             this.privateAddress = privateAddress;
             this.publicAddress = null;
             this.isReady = isReady;
@@ -535,7 +535,7 @@ class KubernetesClient {
         }
 
         Endpoint(EndpointAddress privateAddress, EndpointAddress publicAddress, boolean isReady,
-                 Map<String, Object> additionalProperties) {
+                 Map<String, String> additionalProperties) {
             this.privateAddress = privateAddress;
             this.publicAddress = publicAddress;
             this.isReady = isReady;
@@ -554,7 +554,7 @@ class KubernetesClient {
             return isReady;
         }
 
-        Map<String, Object> getAdditionalProperties() {
+        Map<String, String> getAdditionalProperties() {
             return additionalProperties;
         }
     }
