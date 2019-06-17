@@ -308,7 +308,7 @@ Note however that, by default, Hazelcast does not shutdown gracefully. It means 
 
 Additionally:
 - If you use Deployment (not StatefulSet), you need to set your strategy to [RollingUpdate](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#updating-a-deployment) and ensure Pods are updated one by one.
-- If you upgrade by the minor version, e.g., `3.11.4 => 3.12` (Enterprise feature), you need to set the following JVM property `-Dhazelcast.cluster.version.auto.upgrade.enabled` to make sure the cluster version updates automatically.
+- If you upgrade by the minor version, e.g., `3.11.4 => 3.12` (Enterprise feature), you need to set the following JVM property `-Dhazelcast.cluster.version.auto.upgrade.enabled=true` to make sure the cluster version updates automatically.
 
 All these features are already included in [Hazelcast Helm Charts](#helm-chart).
 
