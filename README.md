@@ -349,4 +349,4 @@ The plugin is used to provide the OpenShift integration, please check [Hazelcast
 
 ### Istio
 
-Hazelcast works correctly with Istio >= 1.1.0 without any need of additional configuration. You can use it in both client-server and embedded modes. Also, the Hazelcast cluster can be either outside of inside the Istio mesh.
+Hazelcast works correctly with Istio >= 1.1.0 without any need of additional configuration. You can use it in both client-server and embedded modes. Also, the Hazelcast cluster can be either outside or inside the Istio mesh.
