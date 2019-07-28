@@ -119,6 +119,26 @@ class KubernetesClient {
     }
 
     /**
+     * Retrieves POD addresses for all services in the specified {@code namespace} filtered by {@code podLabel}
+     * and {@code podLabelValue}.
+     *
+     * @param podLabel      label used to filter responses
+     * @param podLabelValue label value used to filter responses
+     * @return all POD addresses from the specified {@code namespace} filtered by the label
+     * @see <a href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.11/#list-143">Kubernetes Endpoint API</a>
+     */
+    List<Endpoint> endpointsByPodLabel(String podLabel, String podLabelValue) {
+        try {
+            String param = String.format("labelSelector=%s=%s", podLabel, podLabelValue);
+            String urlString = String.format("%s/api/v1/namespaces/%s/pods?%s", kubernetesMaster, namespace, param);
+            return enrichWithPublicAddresses(parsePodsList(callGet(urlString)));
+        } catch (RestClientException e) {
+            return handleKnownException(e);
+        }
+    }
+
+
+    /**
      * Retrieves zone name for the specified {@code namespace} and the given {@code podName}.
      * <p>
      * Note that the Kubernetes environment provides such information as defined

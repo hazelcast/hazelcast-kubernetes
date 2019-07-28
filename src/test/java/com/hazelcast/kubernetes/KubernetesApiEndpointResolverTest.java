@@ -59,7 +59,7 @@ public class KubernetesApiEndpointResolverTest {
         List<Endpoint> endpoints = Collections.<Endpoint>emptyList();
         given(client.endpoints()).willReturn(endpoints);
 
-        KubernetesApiEndpointResolver sut = new KubernetesApiEndpointResolver(LOGGER, null, 0, null, null, null, client);
+        KubernetesApiEndpointResolver sut = new KubernetesApiEndpointResolver(LOGGER, null, 0, null, null, null, null, null, client);
 
         // when
         List<DiscoveryNode> nodes = sut.resolve();
@@ -83,7 +83,7 @@ public class KubernetesApiEndpointResolverTest {
         List<Endpoint> endpoints = createEndpoints(1);
         given(client.endpointsByName(SERVICE_NAME)).willReturn(endpoints);
 
-        KubernetesApiEndpointResolver sut = new KubernetesApiEndpointResolver(LOGGER, SERVICE_NAME, port, null, null, null,
+        KubernetesApiEndpointResolver sut = new KubernetesApiEndpointResolver(LOGGER, SERVICE_NAME, port, null, null, null, null, null,
                 client);
 
         // when
@@ -101,7 +101,7 @@ public class KubernetesApiEndpointResolverTest {
         given(client.endpointsByLabel(SERVICE_LABEL, SERVICE_LABEL_VALUE)).willReturn(endpoints);
 
         KubernetesApiEndpointResolver sut = new KubernetesApiEndpointResolver(LOGGER, null, 0, SERVICE_LABEL, SERVICE_LABEL_VALUE,
-                null, client);
+                null, null, null, client);
 
         // when
         List<DiscoveryNode> nodes = sut.resolve();
@@ -118,7 +118,7 @@ public class KubernetesApiEndpointResolverTest {
         given(client.endpointsByName(SERVICE_NAME)).willReturn(endpoints);
 
         KubernetesApiEndpointResolver sut = new KubernetesApiEndpointResolver(LOGGER, SERVICE_NAME, 0, null, null,
-                RESOLVE_NOT_READY_ADDRESSES, client);
+                null, null, RESOLVE_NOT_READY_ADDRESSES, client);
 
         // when
         List<DiscoveryNode> nodes = sut.resolve();
@@ -133,7 +133,7 @@ public class KubernetesApiEndpointResolverTest {
         List<Endpoint> endpoints = createNotReadyEndpoints(2);
         given(client.endpointsByName(SERVICE_NAME)).willReturn(endpoints);
 
-        KubernetesApiEndpointResolver sut = new KubernetesApiEndpointResolver(LOGGER, SERVICE_NAME, 0, null, null, null,
+        KubernetesApiEndpointResolver sut = new KubernetesApiEndpointResolver(LOGGER, SERVICE_NAME, 0, null, null, null, null, null,
                 client);
 
         // when
