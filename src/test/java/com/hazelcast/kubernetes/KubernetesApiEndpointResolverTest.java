@@ -98,7 +98,7 @@ public class KubernetesApiEndpointResolverTest {
     public void resolveWithServiceLabelWhenNodeWithServiceLabel() {
         // given
         List<Endpoint> endpoints = createEndpoints(2);
-        given(client.endpointsByLabel(SERVICE_LABEL, SERVICE_LABEL_VALUE)).willReturn(endpoints);
+        given(client.endpointsByServiceLabel(SERVICE_LABEL, SERVICE_LABEL_VALUE)).willReturn(endpoints);
 
         KubernetesApiEndpointResolver sut = new KubernetesApiEndpointResolver(LOGGER, null, 0, SERVICE_LABEL, SERVICE_LABEL_VALUE,
                 null, null, null, client);

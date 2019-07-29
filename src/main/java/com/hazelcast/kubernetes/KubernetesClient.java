@@ -92,7 +92,7 @@ class KubernetesClient {
      * @return all POD addresses from the specified {@code namespace} filtered by the label
      * @see <a href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.11/#list-143">Kubernetes Endpoint API</a>
      */
-    List<Endpoint> endpointsByLabel(String serviceLabel, String serviceLabelValue) {
+    List<Endpoint> endpointsByServiceLabel(String serviceLabel, String serviceLabelValue) {
         try {
             String param = String.format("labelSelector=%s=%s", serviceLabel, serviceLabelValue);
             String urlString = String.format("%s/api/v1/namespaces/%s/endpoints?%s", kubernetesMaster, namespace, param);

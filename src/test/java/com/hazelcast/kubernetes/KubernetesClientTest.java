@@ -190,7 +190,7 @@ public class KubernetesClientTest {
         stub(String.format("/api/v1/namespaces/%s/endpoints", NAMESPACE), queryParams, endpointsListResponse);
 
         // when
-        List<Endpoint> result = kubernetesClient.endpointsByLabel(serviceLabel, serviceLabelValue);
+        List<Endpoint> result = kubernetesClient.endpointsByServiceLabel(serviceLabel, serviceLabelValue);
 
         // then
         assertThat(format(result),
