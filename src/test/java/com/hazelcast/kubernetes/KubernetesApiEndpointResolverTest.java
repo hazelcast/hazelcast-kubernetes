@@ -40,8 +40,10 @@ import static org.mockito.BDDMockito.given;
 public class KubernetesApiEndpointResolverTest {
     private static final ILogger LOGGER = new NoLogFactory().getLogger("no");
     private static final String SERVICE_NAME = "serviceName";
-    private static final String SERVICE_LABEL = "theLabel";
+    private static final String SERVICE_LABEL = "serviceLabel";
     private static final String SERVICE_LABEL_VALUE = "serviceLabelValue";
+    private static final String POD_LABEL = "podLabel";
+    private static final String POD_LABEL_VALUE = "podLabelValue";
     private static final Boolean RESOLVE_NOT_READY_ADDRESSES = true;
 
     @Mock
@@ -102,6 +104,23 @@ public class KubernetesApiEndpointResolverTest {
 
         KubernetesApiEndpointResolver sut = new KubernetesApiEndpointResolver(LOGGER, null, 0, SERVICE_LABEL, SERVICE_LABEL_VALUE,
                 null, null, null, client);
+
+        // when
+        List<DiscoveryNode> nodes = sut.resolve();
+
+        // then
+        assertEquals(1, nodes.size());
+        assertEquals(2, nodes.get(0).getPrivateAddress().getPort());
+    }
+
+    @Test
+    public void resolveWithPodLabelWhenNodeWithPodLabel() {
+        // given
+        List<Endpoint> endpoints = createEndpoints(2);
+        given(client.endpointsByPodLabel(POD_LABEL, POD_LABEL_VALUE)).willReturn(endpoints);
+
+        KubernetesApiEndpointResolver sut = new KubernetesApiEndpointResolver(LOGGER, null, 0, null, null,
+                POD_LABEL, POD_LABEL_VALUE, null, client);
 
         // when
         List<DiscoveryNode> nodes = sut.resolve();
