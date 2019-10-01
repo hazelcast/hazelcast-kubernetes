@@ -78,7 +78,7 @@ final class KubernetesConfig {
         this.serviceLabelName = getOrNull(properties, KUBERNETES_SYSTEM_PREFIX, SERVICE_LABEL_NAME);
         this.serviceLabelValue = getOrDefault(properties, KUBERNETES_SYSTEM_PREFIX, SERVICE_LABEL_VALUE, "true");
         this.namespace = getOrDefault(properties, KUBERNETES_SYSTEM_PREFIX, NAMESPACE, getNamespaceOrDefault());
-        this.resolveNotReadyAddresses = getOrDefault(properties, KUBERNETES_SYSTEM_PREFIX, RESOLVE_NOT_READY_ADDRESSES, false);
+        this.resolveNotReadyAddresses = getOrDefault(properties, KUBERNETES_SYSTEM_PREFIX, RESOLVE_NOT_READY_ADDRESSES, true);
         this.useNodeNameAsExternalAddress
                 = getOrDefault(properties, KUBERNETES_SYSTEM_PREFIX, USE_NODE_NAME_AS_EXTERNAL_ADDRESS, false);
         this.kubernetesApiRetries
