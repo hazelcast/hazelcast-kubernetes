@@ -82,7 +82,7 @@ final class KubernetesConfig {
         this.serviceName = getOrNull(properties, KUBERNETES_SYSTEM_PREFIX, SERVICE_NAME);
         this.serviceLabelName = getOrNull(properties, KUBERNETES_SYSTEM_PREFIX, SERVICE_LABEL_NAME);
         this.serviceLabelValue = getOrDefault(properties, KUBERNETES_SYSTEM_PREFIX, SERVICE_LABEL_VALUE, "true");
-        this.namespace = getOrDefault(properties, KUBERNETES_SYSTEM_PREFIX, NAMESPACE, getNamespaceOrDefault());
+        this.namespace = getOrDefault(properties, KUBERNETES_SYSTEM_PREFIX, NAMESPACE, getEnvVarNamespaceOrCurrent());
         this.podLabelName = getOrNull(properties, KUBERNETES_SYSTEM_PREFIX, POD_LABEL_NAME);
         this.podLabelValue = getOrNull(properties, KUBERNETES_SYSTEM_PREFIX, POD_LABEL_VALUE);
         this.resolveNotReadyAddresses = getOrDefault(properties, KUBERNETES_SYSTEM_PREFIX, RESOLVE_NOT_READY_ADDRESSES, true);
@@ -98,12 +98,12 @@ final class KubernetesConfig {
         validateConfig();
     }
 
-    private String getNamespaceOrDefault() {
+    private String getEnvVarNamespaceOrCurrent() {
         String namespace = System.getenv("KUBERNETES_NAMESPACE");
         if (namespace == null) {
             namespace = System.getenv("OPENSHIFT_BUILD_NAMESPACE");
             if (namespace == null) {
-                namespace = "default";
+                namespace = readNamespace();
             }
         }
         return namespace;
@@ -135,16 +135,21 @@ final class KubernetesConfig {
         return readFileContents("/var/run/secrets/kubernetes.io/serviceaccount/ca.crt");
     }
 
-    static String readFileContents(String tokenFile) {
+    @SuppressFBWarnings("DMI_HARDCODED_ABSOLUTE_FILENAME")
+    private static String readNamespace() {
+        return readFileContents("/var/run/secrets/kubernetes.io/serviceaccount/namespace");
+    }
+
+    static String readFileContents(String fileName) {
         InputStream is = null;
         try {
-            File file = new File(tokenFile);
+            File file = new File(fileName);
             byte[] data = new byte[(int) file.length()];
             is = new FileInputStream(file);
             is.read(data);
             return new String(data, "UTF-8");
         } catch (IOException e) {
-            throw new RuntimeException("Could not get token file", e);
+            throw new RuntimeException("Could not get " + fileName, e);
         } finally {
             IOUtil.closeResource(is);
         }

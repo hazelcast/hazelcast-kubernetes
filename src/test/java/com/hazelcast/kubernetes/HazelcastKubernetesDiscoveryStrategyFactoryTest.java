@@ -36,7 +36,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(KubernetesApiEndpointResolver.class)
+@PrepareForTest({KubernetesApiEndpointResolver.class, KubernetesConfig.class})
 public class HazelcastKubernetesDiscoveryStrategyFactoryTest {
 
     private static final ILogger LOGGER = new NoLogFactory().getLogger("no");
@@ -53,6 +53,9 @@ public class HazelcastKubernetesDiscoveryStrategyFactoryTest {
     public void setup()
             throws Exception {
         PowerMockito.whenNew(KubernetesClient.class).withAnyArguments().thenReturn(client);
+        PowerMockito.spy(KubernetesConfig.class);
+        PowerMockito.doReturn("default")
+                .when(KubernetesConfig.class, "readFileContents", "/var/run/secrets/kubernetes.io/serviceaccount/namespace");
     }
 
     @Test
