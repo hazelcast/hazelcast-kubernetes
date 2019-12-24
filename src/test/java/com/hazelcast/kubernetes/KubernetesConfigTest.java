@@ -18,6 +18,8 @@ package com.hazelcast.kubernetes;
 
 import com.hazelcast.config.InvalidConfigurationException;
 import com.hazelcast.nio.IOUtil;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.BufferedWriter;
@@ -28,6 +30,11 @@ import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import static com.hazelcast.kubernetes.KubernetesConfig.DiscoveryMode;
 import static com.hazelcast.kubernetes.KubernetesProperties.KUBERNETES_API_RETIRES;
@@ -40,10 +47,20 @@ import static com.hazelcast.kubernetes.KubernetesProperties.SERVICE_LABEL_VALUE;
 import static com.hazelcast.kubernetes.KubernetesProperties.SERVICE_NAME;
 import static com.hazelcast.kubernetes.KubernetesProperties.SERVICE_PORT;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
 
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({KubernetesConfig.class})
 public class KubernetesConfigTest {
     private static final String TEST_API_TOKEN = "api-token";
     private static final String TEST_CA_CERTIFICATE = "ca-certificate";
+
+    @Before
+    public void prepare() throws Exception {
+        PowerMockito.spy(KubernetesConfig.class);
+        PowerMockito.doReturn("default").when(KubernetesConfig.class, "readFileContents", "/var/run/secrets/kubernetes.io/serviceaccount/namespace");
+    }
 
     @Test
     public void dnsLookupMode() {
@@ -68,7 +85,7 @@ public class KubernetesConfigTest {
     }
 
     @Test
-    public void kubernetesApiModeDefault() {
+    public void kubernetesApiModeDefault() throws Exception {
         // given
         Map<String, Comparable> properties = createProperties();
 
