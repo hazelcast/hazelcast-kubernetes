@@ -82,7 +82,6 @@ final class KubernetesConfig {
         this.serviceName = getOrNull(properties, KUBERNETES_SYSTEM_PREFIX, SERVICE_NAME);
         this.serviceLabelName = getOrNull(properties, KUBERNETES_SYSTEM_PREFIX, SERVICE_LABEL_NAME);
         this.serviceLabelValue = getOrDefault(properties, KUBERNETES_SYSTEM_PREFIX, SERVICE_LABEL_VALUE, "true");
-        this.namespace = getOrDefault(properties, KUBERNETES_SYSTEM_PREFIX, NAMESPACE, getEnvVarNamespaceOrCurrent());
         this.podLabelName = getOrNull(properties, KUBERNETES_SYSTEM_PREFIX, POD_LABEL_NAME);
         this.podLabelValue = getOrNull(properties, KUBERNETES_SYSTEM_PREFIX, POD_LABEL_VALUE);
         this.resolveNotReadyAddresses = getOrDefault(properties, KUBERNETES_SYSTEM_PREFIX, RESOLVE_NOT_READY_ADDRESSES, true);
@@ -94,18 +93,28 @@ final class KubernetesConfig {
         this.kubernetesApiToken = getApiToken(properties);
         this.kubernetesCaCertificate = caCertificate(properties);
         this.servicePort = getOrDefault(properties, KUBERNETES_SYSTEM_PREFIX, SERVICE_PORT, 0);
+        this.namespace = getNamespaceWithFallbacks(properties, KUBERNETES_SYSTEM_PREFIX, NAMESPACE);
 
         validateConfig();
     }
 
-    private String getEnvVarNamespaceOrCurrent() {
-        String namespace = System.getenv("KUBERNETES_NAMESPACE");
+    private String getNamespaceWithFallbacks(Map<String, Comparable> properties,
+                                             String kubernetesSystemPrefix,
+                                             PropertyDefinition propertyDefinition) {
+        String namespace = getOrNull(properties, kubernetesSystemPrefix, propertyDefinition);
+
+        if (namespace == null) {
+            namespace = System.getenv("KUBERNETES_NAMESPACE");
+        }
+
         if (namespace == null) {
             namespace = System.getenv("OPENSHIFT_BUILD_NAMESPACE");
-            if (namespace == null) {
-                namespace = readNamespace();
-            }
         }
+
+        if (namespace == null) {
+            namespace = readNamespace();
+        }
+
         return namespace;
     }
 
