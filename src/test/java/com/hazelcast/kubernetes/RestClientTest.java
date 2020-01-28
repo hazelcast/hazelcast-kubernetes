@@ -37,13 +37,14 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.post;
-import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSession;
+import java.io.File;
+
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static com.hazelcast.kubernetes.KubernetesConfig.readFileContents;
 import static org.junit.Assert.assertEquals;
 
 public class RestClientTest {
@@ -51,14 +52,27 @@ public class RestClientTest {
     private static final String BODY_REQUEST = "some body request";
     private static final String BODY_RESPONSE = "some body response";
 
+    static {
+        // to disable hostname HTTPS verification for testing
+        HttpsURLConnection.setDefaultHostnameVerifier(
+                new HostnameVerifier(){
+                    public boolean verify(String hostname, SSLSession sslSession) {
+                        return true;
+                    }
+                });
+    }
+
     @Rule
-    public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().dynamicPort());
+    public WireMockRule wireMockRule = new WireMockRule(wireMockConfig()
+            .dynamicHttpsPort()
+            .keystorePath(pathTo("keystore.jks"))
+    );
 
     private String address;
 
     @Before
     public void setUp() {
-        address = String.format("http://localhost:%s", wireMockRule.port());
+        address = String.format("https://localhost:%s", wireMockRule.httpsPort());
     }
 
     @Test
@@ -68,7 +82,9 @@ public class RestClientTest {
                 .willReturn(aResponse().withStatus(200).withBody(BODY_RESPONSE)));
 
         // when
-        String result = RestClient.create(String.format("%s%s", address, API_ENDPOINT)).get();
+        String result = RestClient.create(String.format("%s%s", address, API_ENDPOINT))
+                .withCaCertificate(readFile("ca.crt"))
+                .get();
 
         // then
         assertEquals(BODY_RESPONSE, result);
@@ -85,8 +101,9 @@ public class RestClientTest {
 
         // when
         String result = RestClient.create(String.format("%s%s", address, API_ENDPOINT))
-                                  .withHeader(headerKey, headerValue)
-                                  .get();
+                .withHeader(headerKey, headerValue)
+                .withCaCertificate(readFile("ca.crt"))
+                .get();
 
         // then
         assertEquals(BODY_RESPONSE, result);
@@ -99,7 +116,9 @@ public class RestClientTest {
                 .willReturn(aResponse().withStatus(500).withBody("Internal error")));
 
         // when
-        RestClient.create(String.format("%s%s", address, API_ENDPOINT)).get();
+        RestClient.create(String.format("%s%s", address, API_ENDPOINT))
+                .withCaCertificate(readFile("ca.crt"))
+                .get();
 
         // then
         // throw exception
@@ -114,10 +133,19 @@ public class RestClientTest {
 
         // when
         String result = RestClient.create(String.format("%s%s", address, API_ENDPOINT))
-                                  .withBody(BODY_REQUEST)
-                                  .post();
+                .withBody(BODY_REQUEST)
+                .withCaCertificate(readFile("ca.crt"))
+                .post();
 
         // then
         assertEquals(BODY_RESPONSE, result);
+    }
+
+    private String readFile(String filename) {
+        return readFileContents(pathTo(filename));
+    }
+
+    private String pathTo(String filename) {
+        return new File(getClass().getClassLoader().getResource(filename).getFile()).getAbsolutePath();
     }
 }
