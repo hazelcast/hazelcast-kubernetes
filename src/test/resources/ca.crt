@@ -1,0 +1,23 @@
+Bag Attributes
+    friendlyName: wiremock
+    localKeyID: 54 69 6D 65 20 31 35 38 30 32 32 36 36 35 39 39 35 32 
+subject=C = Unknown, ST = Unknown, L = Unknown, O = Unknown, OU = Unknown, CN = localhost
+
+issuer=C = Unknown, ST = Unknown, L = Unknown, O = Unknown, OU = Unknown, CN = localhost
+
+-----BEGIN CERTIFICATE-----
+MIICeDCCAeGgAwIBAgIECFbWTjANBgkqhkiG9w0BAQsFADBuMRAwDgYDVQQGEwdV
+bmtub3duMRAwDgYDVQQIEwdVbmtub3duMRAwDgYDVQQHEwdVbmtub3duMRAwDgYD
+VQQKEwdVbmtub3duMRAwDgYDVQQLEwdVbmtub3duMRIwEAYDVQQDEwlsb2NhbGhv
+c3QwIBcNMjAwMTI4MTU1MDQ4WhgPMjEyMDAxMDQxNTUwNDhaMG4xEDAOBgNVBAYT
+B1Vua25vd24xEDAOBgNVBAgTB1Vua25vd24xEDAOBgNVBAcTB1Vua25vd24xEDAO
+BgNVBAoTB1Vua25vd24xEDAOBgNVBAsTB1Vua25vd24xEjAQBgNVBAMTCWxvY2Fs
+aG9zdDCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAqUga3JPPycHEsHS7LCRi
+zZ9nruarwTzKSGoLUtJEH5SgmFucK+cJs0SvXWVTJ4BRlsyOjHYxnJN1gBSbzLt9
+MkaoxzYfqPoQYuePOjFiBsmbbLBEk4yZhUB/ik4yLzu/aGUwuyJQayMNo3Th1WQ4
+3qxzSdWAASPgBenOugiWTFECAwEAAaMhMB8wHQYDVR0OBBYEFARNaKaAcaGEuezm
+meCv76mqmPVdMA0GCSqGSIb3DQEBCwUAA4GBAGznOs7mw+Swnzy3jtmLms1ajRlb
+qhCQtd3d/I5NJYpq7z8n/5fkNx1orLcQ1cLQpoHQ4TIKjlrOlJnDp0m3i3fFyLv3
+/zguGfAg9Fh//uY2fqd1H0f6tCd4631rTqH1aN15OFfyRGIItxp2xO+NEl2yMyc8
+CyJtWtjG31l3ayBB
+-----END CERTIFICATE-----
