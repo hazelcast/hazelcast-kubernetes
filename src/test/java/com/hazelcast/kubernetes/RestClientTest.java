@@ -52,16 +52,6 @@ public class RestClientTest {
     private static final String BODY_REQUEST = "some body request";
     private static final String BODY_RESPONSE = "some body response";
 
-    static {
-        // to disable hostname HTTPS verification for testing
-        HttpsURLConnection.setDefaultHostnameVerifier(
-                new HostnameVerifier(){
-                    public boolean verify(String hostname, SSLSession sslSession) {
-                        return true;
-                    }
-                });
-    }
-
     @Rule
     public WireMockRule wireMockRule = new WireMockRule(wireMockConfig()
             .dynamicHttpsPort()
@@ -72,6 +62,13 @@ public class RestClientTest {
 
     @Before
     public void setUp() {
+        // disable hostname HTTPS verification for testing
+        HttpsURLConnection.setDefaultHostnameVerifier(
+                new HostnameVerifier() {
+                    public boolean verify(String hostname, SSLSession sslSession) {
+                        return true;
+                    }
+                });
         address = String.format("https://localhost:%s", wireMockRule.httpsPort());
     }
 
