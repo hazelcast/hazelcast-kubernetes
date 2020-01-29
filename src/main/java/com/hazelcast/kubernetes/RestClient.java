@@ -70,7 +70,7 @@ final class RestClient {
         return this;
     }
 
-    RestClient withCaCertificate(String caCertificate) {
+    RestClient withCaCertificates(String caCertificate) {
         this.caCertificate = caCertificate;
         return this;
     }
