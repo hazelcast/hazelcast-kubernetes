@@ -80,7 +80,7 @@ public class RestClientTest {
 
         // when
         String result = RestClient.create(String.format("%s%s", address, API_ENDPOINT))
-                .withCaCertificate(readFile("ca.crt"))
+                .withCaCertificates(readFile("ca.crt"))
                 .get();
 
         // then
@@ -99,7 +99,7 @@ public class RestClientTest {
         // when
         String result = RestClient.create(String.format("%s%s", address, API_ENDPOINT))
                 .withHeader(headerKey, headerValue)
-                .withCaCertificate(readFile("ca.crt"))
+                .withCaCertificates(readFile("ca.crt"))
                 .get();
 
         // then
@@ -114,7 +114,7 @@ public class RestClientTest {
 
         // when
         RestClient.create(String.format("%s%s", address, API_ENDPOINT))
-                .withCaCertificate(readFile("ca.crt"))
+                .withCaCertificates(readFile("ca.crt"))
                 .get();
 
         // then
@@ -131,7 +131,7 @@ public class RestClientTest {
         // when
         String result = RestClient.create(String.format("%s%s", address, API_ENDPOINT))
                 .withBody(BODY_REQUEST)
-                .withCaCertificate(readFile("ca.crt"))
+                .withCaCertificates(readFile("ca.crt"))
                 .post();
 
         // then
