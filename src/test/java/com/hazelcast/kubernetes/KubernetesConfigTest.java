@@ -234,36 +234,52 @@ public class KubernetesConfigTest {
 
     @Test(expected = InvalidConfigurationException.class)
     public void invalidCaCertificateWithKubernetesApiMode() {
+        // given
         Map<String, Comparable> properties = new HashMap<String, Comparable>();
-        properties.put(SERVICE_DNS.key(), null);
 
+        // when
         new KubernetesConfig(properties);
+
+        // then
+        // throws exception
     }
 
     @Test
     public void validCaCertificateWithServiceDnsMode() {
+        // given
         Map<String, Comparable> properties = new HashMap<String, Comparable>();
         properties.put(SERVICE_DNS.key(), "test.dns");
 
+        // when
         KubernetesConfig config = new KubernetesConfig(properties);
+
+        // then
         assertNull(config.getKubernetesCaCertificate());
     }
 
     @Test(expected = InvalidConfigurationException.class)
     public void invalidAccountTokenWithKubernetesApiMode() {
+        // given
         Map<String, Comparable> properties = new HashMap<String, Comparable>();
-        properties.put(SERVICE_DNS.key(), null);
         properties.put(KUBERNETES_CA_CERTIFICATE.key(), TEST_CA_CERTIFICATE);
 
+        // when
         new KubernetesConfig(properties);
+
+        // then
+        // throws exception
     }
 
     @Test
     public void validAccountTokenWithServiceDnsMode() {
+        // given
         Map<String, Comparable> properties = new HashMap<String, Comparable>();
         properties.put(SERVICE_DNS.key(), "test.dns");
 
+        // when
         KubernetesConfig config = new KubernetesConfig(properties);
+
+        // then
         assertNull(config.getKubernetesApiToken());
     }
 

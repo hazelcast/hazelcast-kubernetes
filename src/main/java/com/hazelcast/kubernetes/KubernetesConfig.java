@@ -253,15 +253,26 @@ final class KubernetesConfig {
                     String.format("Property '%s' cannot be a negative number", SERVICE_PORT.key()));
         }
         if (getMode().equals(DiscoveryMode.KUBERNETES_API)) {
-            String errorTemplate = "Property '%s' cannot be null when using kubernetes API mode";
             if (kubernetesCaCertificate == null) {
                 throw new InvalidConfigurationException(
-                        String.format(errorTemplate, KUBERNETES_CA_CERTIFICATE.key()));
+                        String.format(
+                                "The value of CA Certificate cannot be found. Please make sure that the file '%s' " +
+                                        "exists or define '%s' in the configuration",
+                                CA_CERTIFICATE_FILENAME,
+                                KUBERNETES_CA_CERTIFICATE.key()
+                        )
+                );
             }
 
             if (kubernetesApiToken == null) {
                 throw new InvalidConfigurationException(
-                        String.format(errorTemplate, KUBERNETES_API_TOKEN.key()));
+                        String.format(
+                                "The value of API token cannot be found. Please make sure that the file '%s' " +
+                                        "exists or define '%s' in the configuration",
+                                ACCOUNT_TOKEN_FILENAME,
+                                KUBERNETES_API_TOKEN.key()
+                        )
+                );
             }
         }
     }
