@@ -40,6 +40,7 @@ import static com.hazelcast.kubernetes.KubernetesProperties.SERVICE_LABEL_VALUE;
 import static com.hazelcast.kubernetes.KubernetesProperties.SERVICE_NAME;
 import static com.hazelcast.kubernetes.KubernetesProperties.SERVICE_PORT;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class KubernetesConfigTest {
     private static final String TEST_API_TOKEN = "api-token";
@@ -229,6 +230,41 @@ public class KubernetesConfigTest {
         String testFile = createTestFile(expectedContents);
         String actualContents = KubernetesConfig.readFileContents(testFile);
         assertEquals(expectedContents, actualContents);
+    }
+
+    @Test(expected = InvalidConfigurationException.class)
+    public void invalidCaCertificateWithKubernetesApiMode() {
+        Map<String, Comparable> properties = new HashMap<String, Comparable>();
+        properties.put(SERVICE_DNS.key(), null);
+
+        new KubernetesConfig(properties);
+    }
+
+    @Test
+    public void validCaCertificateWithServiceDnsMode() {
+        Map<String, Comparable> properties = new HashMap<String, Comparable>();
+        properties.put(SERVICE_DNS.key(), "test.dns");
+
+        KubernetesConfig config = new KubernetesConfig(properties);
+        assertNull(config.getKubernetesCaCertificate());
+    }
+
+    @Test(expected = InvalidConfigurationException.class)
+    public void invalidAccountTokenWithKubernetesApiMode() {
+        Map<String, Comparable> properties = new HashMap<String, Comparable>();
+        properties.put(SERVICE_DNS.key(), null);
+        properties.put(KUBERNETES_CA_CERTIFICATE.key(), TEST_CA_CERTIFICATE);
+
+        new KubernetesConfig(properties);
+    }
+
+    @Test
+    public void validAccountTokenWithServiceDnsMode() {
+        Map<String, Comparable> properties = new HashMap<String, Comparable>();
+        properties.put(SERVICE_DNS.key(), "test.dns");
+
+        KubernetesConfig config = new KubernetesConfig(properties);
+        assertNull(config.getKubernetesApiToken());
     }
 
     private static String createTestFile(String expectedContents)

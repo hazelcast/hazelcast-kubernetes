@@ -252,6 +252,18 @@ final class KubernetesConfig {
             throw new InvalidConfigurationException(
                     String.format("Property '%s' cannot be a negative number", SERVICE_PORT.key()));
         }
+        if (getMode().equals(DiscoveryMode.KUBERNETES_API)) {
+            String errorTemplate = "Property '%s' cannot be null when using kubernetes API mode";
+            if (kubernetesCaCertificate == null) {
+                throw new InvalidConfigurationException(
+                        String.format(errorTemplate, KUBERNETES_CA_CERTIFICATE.key()));
+            }
+
+            if (kubernetesApiToken == null) {
+                throw new InvalidConfigurationException(
+                        String.format(errorTemplate, KUBERNETES_API_TOKEN.key()));
+            }
+        }
     }
 
     DiscoveryMode getMode() {
