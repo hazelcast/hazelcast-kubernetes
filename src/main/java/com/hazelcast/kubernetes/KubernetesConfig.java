@@ -53,6 +53,8 @@ final class KubernetesConfig {
     private static final String DEFAULT_MASTER_URL = "https://kubernetes.default.svc";
     private static final int DEFAULT_SERVICE_DNS_TIMEOUT_SECONDS = 5;
     private static final int DEFAULT_KUBERNETES_API_RETRIES = 3;
+    private static final String ACCOUNT_TOKEN_FILENAME = "/var/run/secrets/kubernetes.io/serviceaccount/token";
+    private static final String CA_CERTIFICATE_FILENAME = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt";
 
     // Parameters for DNS Lookup mode
     private final String serviceDns;
@@ -127,12 +129,25 @@ final class KubernetesConfig {
 
     @SuppressFBWarnings("DMI_HARDCODED_ABSOLUTE_FILENAME")
     private static String readAccountToken() {
-        return readFileContents("/var/run/secrets/kubernetes.io/serviceaccount/token");
+        if (fileExists(ACCOUNT_TOKEN_FILENAME)) {
+            return readFileContents(ACCOUNT_TOKEN_FILENAME);
+        } else {
+            return null;
+        }
     }
 
     @SuppressFBWarnings("DMI_HARDCODED_ABSOLUTE_FILENAME")
     private static String readCaCertificate() {
-        return readFileContents("/var/run/secrets/kubernetes.io/serviceaccount/ca.crt");
+        if (fileExists(CA_CERTIFICATE_FILENAME)) {
+            return readFileContents(CA_CERTIFICATE_FILENAME);
+        } else {
+            return null;
+        }
+    }
+
+    private static boolean fileExists(String fileName) {
+        return new File(fileName)
+                .exists();
     }
 
     static String readFileContents(String tokenFile) {
