@@ -275,4 +275,13 @@ public class KubernetesConfigTest {
         }
         return temp.getAbsolutePath();
     }
+
+    @Test
+    public void propertyIsEmpty() {
+        // given
+        Map<String, Comparable> properties = createProperties();
+        properties.put(SERVICE_NAME.key(), "  ");
+        properties.put(SERVICE_DNS.key(), "service-dns");
+        new KubernetesConfig(properties);
+    }
 }

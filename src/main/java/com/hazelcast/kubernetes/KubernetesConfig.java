@@ -219,22 +219,22 @@ final class KubernetesConfig {
     }
 
     private void validateConfig() {
-        if (serviceDns != null && (serviceName != null || serviceLabelName != null || podLabelName != null)) {
+        if (!StringUtil.isNullOrEmptyAfterTrim(serviceDns) && (!StringUtil.isNullOrEmptyAfterTrim(serviceName) || !StringUtil.isNullOrEmptyAfterTrim(serviceLabelName) || !StringUtil.isNullOrEmptyAfterTrim(podLabelName ))) {
             throw new InvalidConfigurationException(
                     String.format("Properties '%s' and ('%s' or '%s' or %s) cannot be defined at the same time",
                             SERVICE_DNS.key(), SERVICE_NAME.key(), SERVICE_LABEL_NAME.key(), POD_LABEL_NAME.key()));
         }
-        if (serviceName != null && serviceLabelName != null) {
+        if (!StringUtil.isNullOrEmptyAfterTrim(serviceName) && !StringUtil.isNullOrEmptyAfterTrim(serviceLabelName)) {
             throw new InvalidConfigurationException(
                     String.format("Properties '%s' and '%s' cannot be defined at the same time",
                             SERVICE_NAME.key(), SERVICE_LABEL_NAME.key()));
         }
-        if (serviceName != null && podLabelName != null) {
+        if (!StringUtil.isNullOrEmptyAfterTrim(serviceName)  && !StringUtil.isNullOrEmptyAfterTrim(podLabelName)) {
             throw new InvalidConfigurationException(
                     String.format("Properties '%s' and '%s' cannot be defined at the same time",
                             SERVICE_NAME.key(), POD_LABEL_NAME.key()));
         }
-        if (serviceLabelName != null && podLabelName != null) {
+        if (!StringUtil.isNullOrEmptyAfterTrim(serviceLabelName) && !StringUtil.isNullOrEmptyAfterTrim(podLabelName)) {
             throw new InvalidConfigurationException(
                     String.format("Properties '%s' and '%s' cannot be defined at the same time",
                             SERVICE_LABEL_NAME.key(), POD_LABEL_NAME.key()));
