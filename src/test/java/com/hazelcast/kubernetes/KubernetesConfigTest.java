@@ -277,11 +277,30 @@ public class KubernetesConfigTest {
     }
 
     @Test
-    public void propertyIsEmpty() {
+    public void propertyServiceNameIsEmpty() {
         // given
         Map<String, Comparable> properties = createProperties();
         properties.put(SERVICE_NAME.key(), "  ");
         properties.put(SERVICE_DNS.key(), "service-dns");
+        new KubernetesConfig(properties);
+    }
+
+    @Test
+    public void propertyServiceDnsIsNull() {
+        // given
+        Map<String, Comparable> properties = createProperties();
+        properties.put(SERVICE_NAME.key(), "service-name");
+        properties.put(SERVICE_DNS.key(), null);
+        new KubernetesConfig(properties);
+    }
+
+    @Test
+    public void emptyProperties() {
+        // given
+        Map<String, Comparable> properties = createProperties();
+        properties.put(SERVICE_LABEL_NAME.key(), "  ");
+        properties.put(SERVICE_LABEL_VALUE.key(), "service-label-value");
+        properties.put(SERVICE_DNS.key(), "");
         new KubernetesConfig(properties);
     }
 }
