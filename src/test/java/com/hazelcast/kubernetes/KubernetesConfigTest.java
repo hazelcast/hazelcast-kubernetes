@@ -281,17 +281,31 @@ public class KubernetesConfigTest {
         // given
         Map<String, Comparable> properties = createProperties();
         properties.put(SERVICE_NAME.key(), "  ");
-        properties.put(SERVICE_DNS.key(), "service-dns");
-        new KubernetesConfig(properties);
+        String serviceDns = "service-dns";
+        properties.put(SERVICE_DNS.key(), serviceDns);
+
+        //when
+        KubernetesConfig config = new KubernetesConfig(properties);
+
+        //then
+        assertEquals(serviceDns, config.getServiceDns());
+
     }
 
     @Test
     public void propertyServiceDnsIsNull() {
         // given
         Map<String, Comparable> properties = createProperties();
-        properties.put(SERVICE_NAME.key(), "service-name");
+        String serviceName = "service-name";
+        properties.put(SERVICE_NAME.key(), serviceName);
         properties.put(SERVICE_DNS.key(), null);
-        new KubernetesConfig(properties);
+
+        //when
+        KubernetesConfig config = new KubernetesConfig(properties);
+
+        //then
+        assertEquals(serviceName, config.getServiceName());
+
     }
 
     @Test
@@ -299,8 +313,14 @@ public class KubernetesConfigTest {
         // given
         Map<String, Comparable> properties = createProperties();
         properties.put(SERVICE_LABEL_NAME.key(), "  ");
-        properties.put(SERVICE_LABEL_VALUE.key(), "service-label-value");
+        String serviceLabelValue = "service-label-value";
+        properties.put(SERVICE_LABEL_VALUE.key(), serviceLabelValue);
         properties.put(SERVICE_DNS.key(), "");
-        new KubernetesConfig(properties);
+
+        //when
+        KubernetesConfig config = new KubernetesConfig(properties);
+
+        //then
+        assertEquals(serviceLabelValue, config.getServiceLabelValue());
     }
 }
