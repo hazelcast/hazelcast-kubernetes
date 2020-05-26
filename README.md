@@ -297,6 +297,8 @@ hazelcast-client:
 
 **Note:** Hazelcast Client outside Kubernetes cluster works only in the **Kubernetes API** mode (it does not work in the **DNS Lookup** mode).
 
+**Note:** To run external smart client your Kubernetes cluster must have an external public IP. Minikube, for example, won't work.
+
 ## Rolling Upgrade and Scaling
 
 Hazelcast cluster is easily scalable within Kubernetes. You can use the standard `kubectl scale` command to change the cluster size. The same applies the rolling upgrade procedure, you can depend on the standard Kubernetes behavior and just update the new version to your Deployment/StatefulSet configurations.
