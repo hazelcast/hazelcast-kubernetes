@@ -297,7 +297,7 @@ hazelcast-client:
 
 **Note:** Hazelcast Client outside Kubernetes cluster works only in the **Kubernetes API** mode (it does not work in the **DNS Lookup** mode).
 
-**Note:** To run external smart client your Kubernetes cluster must have an external public IP. Minikube, for example, won't work.
+**Note:** If you use Minikube, you need to execute `minikube tunnel` in order to get LoadBalancer External IPs assigned.
 
 ## Rolling Upgrade and Scaling
 
