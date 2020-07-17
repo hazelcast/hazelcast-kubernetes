@@ -241,7 +241,7 @@ final class KubernetesConfig {
     }
 
     DiscoveryMode getMode() {
-        if (serviceDns != null) {
+        if (!StringUtil.isNullOrEmptyAfterTrim(serviceDns)) {
             return DiscoveryMode.DNS_LOOKUP;
         } else {
             return DiscoveryMode.KUBERNETES_API;
