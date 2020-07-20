@@ -60,7 +60,7 @@ public class KubernetesClientTest {
     public void setUp() {
         kubernetesClient = newKubernetesClient(false);
         stubFor(get(urlMatching("/api/.*")).atPriority(5)
-                .willReturn(aResponse().withStatus(401).withBody("\"reason\":\"Forbidden\"")));
+                                           .willReturn(aResponse().withStatus(401).withBody("\"reason\":\"Forbidden\"")));
     }
 
     @Test
@@ -628,33 +628,33 @@ public class KubernetesClientTest {
     private static String nodePortService1Response() {
         //language=JSON
         return "{\n"
-                + "  \"kind\": \"Service\",\n"
-                + "  \"spec\": {\n"
-                + "    \"ports\": [\n"
-                + "      {\n"
-                + "        \"port\": 32123,\n"
-                + "        \"targetPort\": 5701,\n"
-                + "        \"nodePort\": 31916\n"
-                + "      }\n"
-                + "    ]\n"
-                + "  }\n"
-                + "}\n";
+        + "  \"kind\": \"Service\",\n"
+        + "  \"spec\": {\n"
+        + "    \"ports\": [\n"
+        + "      {\n"
+        + "        \"port\": 32123,\n"
+        + "        \"targetPort\": 5701,\n"
+        + "        \"nodePort\": 31916\n"
+        + "      }\n"
+        + "    ]\n"
+        + "  }\n"
+        + "}\n";
     }
 
     private static String nodePortService2Response() {
         //language=JSON
         return "{\n"
-                + "  \"kind\": \"Service\",\n"
-                + "  \"spec\": {\n"
-                + "    \"ports\": [\n"
-                + "      {\n"
-                + "        \"port\": 32124,\n"
-                + "        \"targetPort\": 5701,\n"
-                + "        \"nodePort\": 31917\n"
-                + "      }\n"
-                + "    ]\n"
-                + "  }\n"
-                + "}";
+        + "  \"kind\": \"Service\",\n"
+        + "  \"spec\": {\n"
+        + "    \"ports\": [\n"
+        + "      {\n"
+        + "        \"port\": 32124,\n"
+        + "        \"targetPort\": 5701,\n"
+        + "        \"nodePort\": 31917\n"
+        + "      }\n"
+        + "    ]\n"
+        + "  }\n"
+        + "}";
     }
 
     @Test
