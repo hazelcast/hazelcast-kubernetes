@@ -501,11 +501,11 @@ class KubernetesClient {
     @SuppressWarnings("checkstyle:magicnumber")
     private static List<Endpoint> handleKnownException(RestClientException e) {
         if (e.getHttpErrorCode() == 401) {
-            LOGGER.severe("Kubernetes API authorization failure, please check your 'api-token' property");
+            LOGGER.severe("Kubernetes API authorization failure, please check your 'api-token' property: " + e.getMessage());
         } else if (e.getHttpErrorCode() == 403) {
             LOGGER.severe(
                     "Kubernetes API forbidden access, please check that your Service Account have the correct (Cluster) Role "
-                            + "rules");
+                            + "rules: " + e.getMessage());
         } else {
             throw e;
         }
