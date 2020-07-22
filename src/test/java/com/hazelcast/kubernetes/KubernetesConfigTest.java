@@ -33,6 +33,7 @@ import static com.hazelcast.kubernetes.KubernetesConfig.DiscoveryMode;
 import static com.hazelcast.kubernetes.KubernetesProperties.KUBERNETES_API_RETIRES;
 import static com.hazelcast.kubernetes.KubernetesProperties.KUBERNETES_API_TOKEN;
 import static com.hazelcast.kubernetes.KubernetesProperties.KUBERNETES_CA_CERTIFICATE;
+import static com.hazelcast.kubernetes.KubernetesProperties.NAMESPACE;
 import static com.hazelcast.kubernetes.KubernetesProperties.SERVICE_DNS;
 import static com.hazelcast.kubernetes.KubernetesProperties.SERVICE_DNS_TIMEOUT;
 import static com.hazelcast.kubernetes.KubernetesProperties.SERVICE_LABEL_NAME;
@@ -44,6 +45,7 @@ import static org.junit.Assert.assertEquals;
 public class KubernetesConfigTest {
     private static final String TEST_API_TOKEN = "api-token";
     private static final String TEST_CA_CERTIFICATE = "ca-certificate";
+    private static final String TEST_NAMESPACE = "namespace";
 
     @Test
     public void dnsLookupMode() {
@@ -77,7 +79,7 @@ public class KubernetesConfigTest {
 
         // then
         assertEquals(DiscoveryMode.KUBERNETES_API, config.getMode());
-        assertEquals("default", config.getNamespace());
+        assertEquals(TEST_NAMESPACE, config.getNamespace());
         assertEquals(false, config.isResolveNotReadyAddresses());
         assertEquals(false, config.isUseNodeNameAsExternalAddress());
         assertEquals(TEST_API_TOKEN, config.getKubernetesApiToken());
@@ -219,6 +221,7 @@ public class KubernetesConfigTest {
         // Predefined test properties
         properties.put(KUBERNETES_API_TOKEN.key(), TEST_API_TOKEN);
         properties.put(KUBERNETES_CA_CERTIFICATE.key(), TEST_CA_CERTIFICATE);
+        properties.put(NAMESPACE.key(), TEST_NAMESPACE);
         return properties;
     }
 

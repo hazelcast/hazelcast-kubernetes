@@ -82,7 +82,7 @@ final class KubernetesConfig {
         this.serviceName = getOrNull(properties, KUBERNETES_SYSTEM_PREFIX, SERVICE_NAME);
         this.serviceLabelName = getOrNull(properties, KUBERNETES_SYSTEM_PREFIX, SERVICE_LABEL_NAME);
         this.serviceLabelValue = getOrDefault(properties, KUBERNETES_SYSTEM_PREFIX, SERVICE_LABEL_VALUE, "true");
-        this.namespace = getOrDefault(properties, KUBERNETES_SYSTEM_PREFIX, NAMESPACE, getNamespaceOrDefault());
+        this.namespace = getNamespace(properties);
         this.podLabelName = getOrNull(properties, KUBERNETES_SYSTEM_PREFIX, POD_LABEL_NAME);
         this.podLabelValue = getOrNull(properties, KUBERNETES_SYSTEM_PREFIX, POD_LABEL_VALUE);
         this.resolveNotReadyAddresses = getOrDefault(properties, KUBERNETES_SYSTEM_PREFIX, RESOLVE_NOT_READY_ADDRESSES, false);
@@ -98,12 +98,15 @@ final class KubernetesConfig {
         validateConfig();
     }
 
-    private String getNamespaceOrDefault() {
-        String namespace = System.getenv("KUBERNETES_NAMESPACE");
+    private String getNamespace(Map<String, Comparable> properties) {
+        String namespace = getOrNull(properties, KUBERNETES_SYSTEM_PREFIX, NAMESPACE);
         if (namespace == null) {
-            namespace = System.getenv("OPENSHIFT_BUILD_NAMESPACE");
+            namespace = System.getenv("KUBERNETES_NAMESPACE");
             if (namespace == null) {
-                namespace = "default";
+                namespace = System.getenv("OPENSHIFT_BUILD_NAMESPACE");
+                if (namespace == null) {
+                    namespace = readNamespace();
+                }
             }
         }
         return namespace;
@@ -133,6 +136,11 @@ final class KubernetesConfig {
     @SuppressFBWarnings("DMI_HARDCODED_ABSOLUTE_FILENAME")
     private static String readCaCertificate() {
         return readFileContents("/var/run/secrets/kubernetes.io/serviceaccount/ca.crt");
+    }
+
+    @SuppressFBWarnings("DMI_HARDCODED_ABSOLUTE_FILENAME")
+    private static String readNamespace() {
+        return readFileContents("/var/run/secrets/kubernetes.io/serviceaccount/namespace");
     }
 
     static String readFileContents(String tokenFile) {
