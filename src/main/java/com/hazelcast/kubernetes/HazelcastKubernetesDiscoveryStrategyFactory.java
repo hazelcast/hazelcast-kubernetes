@@ -71,8 +71,8 @@ public class HazelcastKubernetesDiscoveryStrategyFactory
     }
 
     /**
-     * In all Kubernetes environments the file "/var/run/secrets/kubernetes.io/serviceaccount/token" is injected into the container.
-     * That is why we can use it to verify if this code is run in the Kubernetes environment.
+     * In all Kubernetes environments the file "/var/run/secrets/kubernetes.io/serviceaccount/token" is injected into the
+     * container. That is why we can use it to verify if this code is run in the Kubernetes environment.
      * <p>
      * Note that if the Kubernetes environment is not configured correctly, this file my not exist. However, in such case,
      * this plugin won't work anyway, so it make sense to return {@code false}.
