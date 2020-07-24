@@ -53,7 +53,7 @@ final class RetryUtils {
             } catch (Exception e) {
                 retryCount++;
                 if (retryCount > retries || containsAnyOf(e, nonRetryableKeywords)) {
-                    throw rethrowUnchecked(e);
+                    throw unchecked(e);
                 }
                 long waitIntervalMs = backoffIntervalForRetry(retryCount);
                 LOGGER.warning(
@@ -64,7 +64,7 @@ final class RetryUtils {
         }
     }
 
-    private static RuntimeException rethrowUnchecked(Exception e) {
+    private static RuntimeException unchecked(Exception e) {
         if (e instanceof RuntimeException) {
             return (RuntimeException) e;
         }
