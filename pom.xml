@@ -319,6 +319,36 @@
 
   <profiles>
     <profile>
+      <id>pitest</id>
+      <properties>
+        <argLine>
+          -Dhazelcast.version.check.enabled=false
+          -Dhazelcast.mancenter.enabled=false
+          -Dhazelcast.logging.type=none
+          -Dhazelcast.test.use.network=false
+        </argLine>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.pitest</groupId>
+            <artifactId>pitest-maven</artifactId>
+            <version>1.5.2</version>
+            <dependencies>
+              <dependency>
+                <groupId>eu.stamp-project</groupId>
+                <artifactId>descartes</artifactId>
+                <version>1.2.6</version>
+              </dependency>
+            </dependencies>
+            <configuration>
+              <mutationEngine>descartes</mutationEngine>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
       <id>test-coverage</id>
       <properties>
         <argLine>
