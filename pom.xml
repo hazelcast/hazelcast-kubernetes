@@ -533,6 +533,14 @@
 
     <profile>
       <id>pitest</id>
+      <properties>
+        <argLine>
+          -Dhazelcast.version.check.enabled=false
+          -Dhazelcast.mancenter.enabled=false
+          -Dhazelcast.logging.type=none
+          -Dhazelcast.test.use.network=false
+        </argLine>
+      </properties>
       <build>
         <plugins>
           <plugin>
@@ -548,11 +556,6 @@
             </dependencies>
             <configuration>
               <mutationEngine>descartes</mutationEngine>
-              <excludedTestClasses>
-                <excludedTestClass>**.*DnsEndpointResolverTest</excludedTestClass>
-                <excludedTestClass>**.*KubernetesApiEndpointResolverTest</excludedTestClass>
-                <excludedTestClass>**.*HazelcastKubernetesDiscoveryStrategyFactoryTest</excludedTestClass>
-              </excludedTestClasses>
             </configuration>
           </plugin>
         </plugins>
