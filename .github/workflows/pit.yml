@@ -13,8 +13,10 @@ jobs:
       with:
         submodules: true
         fetch-depth: 0
+    - name: Build with Maven
+      run: mvn -Ppitest org.pitest:pitest-maven:mutationCoverage
     - name: Deploy
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./report
+        publish_dir: ./target/pit-reports/*/

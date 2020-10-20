@@ -530,5 +530,33 @@
         </plugins>
       </build>
     </profile>
+
+    <profile>
+      <id>pitest</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.pitest</groupId>
+            <artifactId>pitest-maven</artifactId>
+            <version>1.5.2</version>
+            <dependencies>
+              <dependency>
+                <groupId>eu.stamp-project</groupId>
+                <artifactId>descartes</artifactId>
+                <version>1.2.6</version>
+              </dependency>
+            </dependencies>
+            <configuration>
+              <mutationEngine>descartes</mutationEngine>
+              <excludedTestClasses>
+                <excludedTestClass>**.*DnsEndpointResolverTest</excludedTestClass>
+                <excludedTestClass>**.*KubernetesApiEndpointResolverTest</excludedTestClass>
+                <excludedTestClass>**.*HazelcastKubernetesDiscoveryStrategyFactoryTest</excludedTestClass>
+              </excludedTestClasses>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
   </profiles>
 </project>
