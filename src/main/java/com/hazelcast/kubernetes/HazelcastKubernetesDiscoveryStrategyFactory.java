@@ -18,12 +18,15 @@ package com.hazelcast.kubernetes;
 
 import com.hazelcast.config.properties.PropertyDefinition;
 import com.hazelcast.logging.ILogger;
+import com.hazelcast.logging.Logger;
 import com.hazelcast.spi.discovery.DiscoveryNode;
 import com.hazelcast.spi.discovery.DiscoveryStrategy;
 import com.hazelcast.spi.discovery.DiscoveryStrategyFactory;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import java.io.File;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -34,6 +37,7 @@ import java.util.Map;
  */
 public class HazelcastKubernetesDiscoveryStrategyFactory
         implements DiscoveryStrategyFactory {
+    private static final ILogger LOGGER = Logger.getLogger(HazelcastKubernetesDiscoveryStrategyFactory.class);
 
     private static final Collection<PropertyDefinition> PROPERTY_DEFINITIONS;
 
@@ -80,9 +84,25 @@ public class HazelcastKubernetesDiscoveryStrategyFactory
      * @return true if running in the Kubernetes environment
      */
     @Override
-    @SuppressFBWarnings("DMI_HARDCODED_ABSOLUTE_FILENAME")
     public boolean isAutoDetectionApplicable() {
+        return tokenFileExists() && defaultKubernetesMasterReachable();
+    }
+
+    @SuppressFBWarnings("DMI_HARDCODED_ABSOLUTE_FILENAME")
+    private boolean tokenFileExists() {
         return new File("/var/run/secrets/kubernetes.io/serviceaccount/token").exists();
+    }
+
+    private boolean defaultKubernetesMasterReachable() {
+        try {
+            InetAddress.getByName("kubernetes.default.svc");
+            return true;
+        } catch (UnknownHostException e) {
+            LOGGER.warning("Hazelcast running on Kubernetes, but \"kubernetes.default.svc\" is not reachable. "
+                    + "Check your Kubernetes DNS configuration.");
+            LOGGER.finest(e);
+            return false;
+        }
     }
 
     @Override
