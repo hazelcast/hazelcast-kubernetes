@@ -37,8 +37,6 @@ import java.util.Map;
  */
 public class HazelcastKubernetesDiscoveryStrategyFactory
         implements DiscoveryStrategyFactory {
-    private static final ILogger LOGGER = Logger.getLogger(HazelcastKubernetesDiscoveryStrategyFactory.class);
-
     private static final Collection<PropertyDefinition> PROPERTY_DEFINITIONS;
 
     static {
@@ -98,9 +96,10 @@ public class HazelcastKubernetesDiscoveryStrategyFactory
             InetAddress.getByName("kubernetes.default.svc");
             return true;
         } catch (UnknownHostException e) {
-            LOGGER.warning("Hazelcast running on Kubernetes, but \"kubernetes.default.svc\" is not reachable. "
+            ILogger logger = Logger.getLogger(HazelcastKubernetesDiscoveryStrategyFactory.class);
+            logger.warning("Hazelcast running on Kubernetes, but \"kubernetes.default.svc\" is not reachable. "
                     + "Check your Kubernetes DNS configuration.");
-            LOGGER.finest(e);
+            logger.finest(e);
             return false;
         }
     }
