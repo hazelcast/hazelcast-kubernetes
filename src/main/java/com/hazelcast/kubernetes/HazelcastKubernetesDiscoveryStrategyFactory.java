@@ -89,7 +89,7 @@ public class HazelcastKubernetesDiscoveryStrategyFactory
     }
 
     @SuppressFBWarnings("DMI_HARDCODED_ABSOLUTE_FILENAME")
-    private boolean tokenFileExists() {
+    boolean tokenFileExists() {
         return new File("/var/run/secrets/kubernetes.io/serviceaccount/token").exists();
     }
 
