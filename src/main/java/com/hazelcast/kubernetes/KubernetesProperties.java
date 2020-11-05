@@ -55,6 +55,7 @@ public final class KubernetesProperties {
      * For more information please refer to the official documentation of the Kubernetes DNS addon,
      * <a href="https://github.com/kubernetes/kubernetes/tree/v1.0.6/cluster/addons/dns">here</a>.
      */
+
     public static final PropertyDefinition SERVICE_DNS = property("service-dns", STRING);
 
     /**
