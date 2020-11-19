@@ -157,6 +157,11 @@ class KubernetesClient {
         return extractZone(callGet(nodeUrlString));
     }
 
+    String nodeName(String podName) {
+        String podUrlString = String.format("%s/api/v1/namespaces/%s/pods/%s", kubernetesMaster, namespace, podName);
+        return extractNodeName(callGet(podUrlString));
+    }
+
     private static List<Endpoint> parsePodsList(JsonObject podsListJson) {
         List<Endpoint> addresses = new ArrayList<Endpoint>();
 

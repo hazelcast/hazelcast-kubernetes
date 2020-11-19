@@ -142,6 +142,10 @@ public final class KubernetesProperties {
      */
     public static final PropertyDefinition SERVICE_PORT = property("service-port", INTEGER);
 
+    public static final PropertyDefinition ZONE_AWARE = property("zone-aware", BOOLEAN);
+
+    public static final PropertyDefinition NODE_AWARE = property("node-aware", BOOLEAN);
+
     // Prevent instantiation
     private KubernetesProperties() {
     }

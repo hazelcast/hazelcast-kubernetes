@@ -35,6 +35,7 @@ import static com.hazelcast.kubernetes.KubernetesProperties.KUBERNETES_CA_CERTIF
 import static com.hazelcast.kubernetes.KubernetesProperties.KUBERNETES_MASTER_URL;
 import static com.hazelcast.kubernetes.KubernetesProperties.KUBERNETES_SYSTEM_PREFIX;
 import static com.hazelcast.kubernetes.KubernetesProperties.NAMESPACE;
+import static com.hazelcast.kubernetes.KubernetesProperties.NODE_AWARE;
 import static com.hazelcast.kubernetes.KubernetesProperties.POD_LABEL_NAME;
 import static com.hazelcast.kubernetes.KubernetesProperties.POD_LABEL_VALUE;
 import static com.hazelcast.kubernetes.KubernetesProperties.RESOLVE_NOT_READY_ADDRESSES;
@@ -45,6 +46,7 @@ import static com.hazelcast.kubernetes.KubernetesProperties.SERVICE_LABEL_VALUE;
 import static com.hazelcast.kubernetes.KubernetesProperties.SERVICE_NAME;
 import static com.hazelcast.kubernetes.KubernetesProperties.SERVICE_PORT;
 import static com.hazelcast.kubernetes.KubernetesProperties.USE_NODE_NAME_AS_EXTERNAL_ADDRESS;
+import static com.hazelcast.kubernetes.KubernetesProperties.ZONE_AWARE;
 
 /**
  * Responsible for fetching, parsing, and validating Hazelcast Kubernetes Discovery Strategy input properties.
@@ -72,6 +74,8 @@ final class KubernetesConfig {
     private final String kubernetesMasterUrl;
     private final String kubernetesApiToken;
     private final String kubernetesCaCertificate;
+    private final boolean useZoneAware;
+    private final boolean useNodeAware;
 
     // Parameters for both DNS Lookup and Kubernetes API modes
     private final int servicePort;
@@ -95,6 +99,8 @@ final class KubernetesConfig {
         this.kubernetesCaCertificate = caCertificate(properties);
         this.servicePort = getOrDefault(properties, KUBERNETES_SYSTEM_PREFIX, SERVICE_PORT, 0);
         this.namespace = getNamespaceWithFallbacks(properties, KUBERNETES_SYSTEM_PREFIX, NAMESPACE);
+        this.useZoneAware = getOrDefault(properties, KUBERNETES_SYSTEM_PREFIX, ZONE_AWARE, false);
+        this.useNodeAware = getOrDefault(properties, KUBERNETES_SYSTEM_PREFIX, NODE_AWARE, false);
 
         validateConfig();
     }
@@ -253,6 +259,11 @@ final class KubernetesConfig {
             throw new InvalidConfigurationException(
                     String.format("Property '%s' cannot be a negative number", SERVICE_PORT.key()));
         }
+        if (useZoneAware && useNodeAware) {
+            throw new InvalidConfigurationException(
+                    String.format("Properties '%s' and '%s' cannot be defined at the same time",
+                            ZONE_AWARE.key(), NODE_AWARE.key()));
+        }
     }
 
     DiscoveryMode getMode() {
@@ -323,6 +334,14 @@ final class KubernetesConfig {
         return servicePort;
     }
 
+    boolean isZoneAwareEnabled() {
+        return useZoneAware;
+    }
+
+    public boolean isNodeAwareEnabled() {
+        return useNodeAware;
+    }
+
     @Override
     public String toString() {
         return "Kubernetes Discovery properties: { "
@@ -337,6 +356,8 @@ final class KubernetesConfig {
                 + "pod-label-value: " + podLabelValue + ", "
                 + "resolve-not-ready-addresses: " + resolveNotReadyAddresses + ", "
                 + "use-node-name-as-external-address: " + useNodeNameAsExternalAddress + ", "
+                + "use-zone-aware: " + useZoneAware + ", "
+                + "use-node-aware: " + useNodeAware + ", "
                 + "kubernetes-api-retries: " + kubernetesApiRetries + ", "
                 + "kubernetes-master: " + kubernetesMasterUrl + "}";
     }
