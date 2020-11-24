@@ -137,7 +137,6 @@ class KubernetesClient {
         }
     }
 
-
     /**
      * Retrieves zone name for the specified {@code namespace} and the given {@code podName}.
      * <p>
@@ -154,6 +153,18 @@ class KubernetesClient {
 
         String nodeUrlString = String.format("%s/api/v1/nodes/%s", kubernetesMaster, nodeName);
         return extractZone(callGet(nodeUrlString));
+    }
+
+    /**
+     * Retrieves node name for the specified {@code namespace} and the given {@code podName}.
+     *
+     * @param podName POD name
+     * @return Node name
+     * @see <a href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.11">Kubernetes Endpoint API</a>
+     */
+    String nodeName(String podName) {
+        String podUrlString = String.format("%s/api/v1/namespaces/%s/pods/%s", kubernetesMaster, namespace, podName);
+        return extractNodeName(callGet(podUrlString));
     }
 
     private static List<Endpoint> parsePodsList(JsonObject podsListJson) {

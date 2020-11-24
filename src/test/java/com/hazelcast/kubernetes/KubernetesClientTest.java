@@ -361,6 +361,28 @@ public class KubernetesClientTest {
         assertEquals("us-central1-a", zone);
     }
 
+
+    @Test
+    public void nodeName() {
+        // given
+        String podName = "pod-name";
+
+        //language=JSON
+        String podResponse = "{\n"
+                + "  \"kind\": \"Pod\",\n"
+                + "  \"spec\": {\n"
+                + "    \"nodeName\": \"kubernetes-node-default-pool-95e18\"\n"
+                + "  }\n"
+                + "}";
+        stub(String.format("/api/v1/namespaces/%s/pods/%s", NAMESPACE, podName), podResponse);
+
+        // when
+        String nodeName = kubernetesClient.nodeName(podName);
+
+        // then
+        assertEquals("kubernetes-node-default-pool-95e18", nodeName);
+    }
+
     @Test
     public void endpointsByNamespaceWithLoadBalancerPublicIp() {
         // given
