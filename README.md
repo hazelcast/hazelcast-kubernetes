@@ -1,5 +1,6 @@
 # Hazelcast Discovery Plugin for Kubernetes
 
+
 This repository contains a plugin which provides the automatic Hazelcast member discovery in the Kubernetes environment.
 
 You can use it in your project deployed on Kubernetes in order to make the embedded Hazelcast members discover each other automatically. This plugin is also included in Hazelcast Docker images, Hazelcast Helm Charts, and Hazelcast OpenShift Docker image.
