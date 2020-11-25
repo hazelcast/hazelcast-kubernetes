@@ -224,6 +224,42 @@ env:
         fieldPath: metadata.name
  ``` 
 
+### Node Aware
+
+When using `NODE_AWARE` configuration, backups are created in the other Kubernetes nodes. This feature is available only for the Kubernetes API mode.
+
+**Note**: Your Kubernetes cluster must orchestrate Hazelcast Member PODs equally between the nodes, otherwise Node Aware feature may not work correctly.
+
+#### YAML Configuration
+
+```yaml
+partition-group:
+  enabled: true
+  group-type: NODE_AWARE
+```
+
+#### Java-based Configuration
+
+```java
+config.getPartitionGroupConfig()
+    .setEnabled(true)
+    .setGroupType(MemberGroupType.NODE_AWARE);
+```
+
+Note the following aspects of `NODE_AWARE`:
+ * Retrieving name of the node uses Kubernetes API, so RBAC must be configured as described [here](#granting-permissions-to-use-kubernetes-api)
+ * `NODE_AWARE` feature works correctly when Hazelcast members are distributed equally in all nodes, so your Kubernetes cluster must orchestrate PODs equally.
+ 
+ Note also that retrieving name of the node assumes that your container's hostname is the same as POD Name, which is almost always true. If you happen to change your hostname in the container, then please define the following environment variable:
+ 
+ ```yaml
+env:
+  - name: POD_NAME
+    valueFrom:
+      fieldRef:
+        fieldPath: metadata.name
+ ``` 
+
 ## Hazelcast Client Configuration
 
 Depending on whether your Hazelcast Client runs inside or outside the Kubernetes cluster, its configuration looks different.

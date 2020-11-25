@@ -371,7 +371,7 @@ public class KubernetesClientTest {
         String podResponse = "{\n"
                 + "  \"kind\": \"Pod\",\n"
                 + "  \"spec\": {\n"
-                + "    \"nodeName\": \"kubernetes-node-default-pool-95e18\"\n"
+                + "    \"nodeName\": \"kubernetes-node-f0bbd602-f7cw\"\n"
                 + "  }\n"
                 + "}";
         stub(String.format("/api/v1/namespaces/%s/pods/%s", NAMESPACE, podName), podResponse);
@@ -380,7 +380,7 @@ public class KubernetesClientTest {
         String nodeName = kubernetesClient.nodeName(podName);
 
         // then
-        assertEquals("kubernetes-node-default-pool-95e18", nodeName);
+        assertEquals("kubernetes-node-f0bbd602-f7cw", nodeName);
     }
 
     @Test
