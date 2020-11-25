@@ -56,7 +56,6 @@ final class DnsEndpointResolver
 
     DnsEndpointResolver(ILogger logger, String serviceDns, int port, int serviceDnsTimeout) {
         this(logger, serviceDns, port, createDirContext(serviceDnsTimeout));
-
     }
 
     @SuppressWarnings("checkstyle:magicnumber")
