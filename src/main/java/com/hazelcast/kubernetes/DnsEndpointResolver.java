@@ -69,6 +69,7 @@ final class DnsEndpointResolver
         } catch (NamingException e) {
             throw new HazelcastException("Error while initializing DirContext", e);
         }
+
     }
 
     List<DiscoveryNode> resolve() {
