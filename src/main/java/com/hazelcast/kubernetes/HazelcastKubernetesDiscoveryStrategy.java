@@ -83,13 +83,7 @@ final class HazelcastKubernetesDiscoveryStrategy
     private String discoverZone() {
         if (DiscoveryMode.KUBERNETES_API.equals(config.getMode())) {
             try {
-                String podName = System.getenv("POD_NAME");
-                if (podName == null) {
-                    podName = System.getenv("HOSTNAME");
-                }
-                if (podName == null) {
-                    podName = InetAddress.getLocalHost().getHostName();
-                }
+                String podName = podName();
                 String zone = client.zone(podName);
                 if (zone != null) {
                     getLogger().info(String.format("Kubernetes plugin discovered availability zone: %s", zone));
@@ -112,16 +106,10 @@ final class HazelcastKubernetesDiscoveryStrategy
     private String discoverNodeName() {
         if (DiscoveryMode.KUBERNETES_API.equals(config.getMode())) {
             try {
-                String podName = System.getenv("POD_NAME");
-                if (podName == null) {
-                    podName = System.getenv("HOSTNAME");
-                }
-                if (podName == null) {
-                    podName = InetAddress.getLocalHost().getHostName();
-                }
+                String podName = podName();
                 String nodeName = client.nodeName(podName);
                 if (nodeName != null) {
-                    getLogger().info(String.format("Kubernetes plugin extracted node name: %s", nodeName));
+                    getLogger().info(String.format("Kubernetes plugin discovered node name: %s", nodeName));
                     return nodeName;
                 }
             } catch (Exception e) {
@@ -131,6 +119,17 @@ final class HazelcastKubernetesDiscoveryStrategy
             getLogger().warning("Cannot fetch name of the node, NODE_AWARE feature is disabled");
         }
         return "unknown";
+    }
+
+    private String podName() throws UnknownHostException {
+        String podName = System.getenv("POD_NAME");
+        if (podName == null) {
+            podName = System.getenv("HOSTNAME");
+        }
+        if (podName == null) {
+            podName = InetAddress.getLocalHost().getHostName();
+        }
+        return podName;
     }
 
     @Override
