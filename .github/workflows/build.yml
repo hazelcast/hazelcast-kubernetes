@@ -1,4 +1,4 @@
-name: build
+name: PR Builder for 1.5.x branch
 on:
   pull_request:
     branches:
