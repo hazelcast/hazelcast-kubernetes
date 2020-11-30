@@ -70,7 +70,7 @@ final class HazelcastKubernetesDiscoveryStrategy
     public Map<String, Object> discoverLocalMetadata() {
         if (memberMetadata.isEmpty()) {
             memberMetadata.put(PartitionGroupMetaData.PARTITION_GROUP_ZONE, discoverZone());
-            memberMetadata.put(PartitionGroupMetaData.PARTITION_GROUP_NODE, discoverNodeName());
+            memberMetadata.put("hazelcast.partition.group.node", discoverNodeName());
         }
         return memberMetadata;
     }
@@ -83,8 +83,7 @@ final class HazelcastKubernetesDiscoveryStrategy
     private String discoverZone() {
         if (DiscoveryMode.KUBERNETES_API.equals(config.getMode())) {
             try {
-                String podName = podName();
-                String zone = client.zone(podName);
+                String zone = client.zone(podName());
                 if (zone != null) {
                     getLogger().info(String.format("Kubernetes plugin discovered availability zone: %s", zone));
                     return zone;
@@ -106,8 +105,7 @@ final class HazelcastKubernetesDiscoveryStrategy
     private String discoverNodeName() {
         if (DiscoveryMode.KUBERNETES_API.equals(config.getMode())) {
             try {
-                String podName = podName();
-                String nodeName = client.nodeName(podName);
+                String nodeName = client.nodeName(podName());
                 if (nodeName != null) {
                     getLogger().info(String.format("Kubernetes plugin discovered node name: %s", nodeName));
                     return nodeName;

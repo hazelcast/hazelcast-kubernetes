@@ -250,7 +250,7 @@ Note the following aspects of `NODE_AWARE`:
  * Retrieving name of the node uses Kubernetes API, so RBAC must be configured as described [here](#granting-permissions-to-use-kubernetes-api)
  * `NODE_AWARE` feature works correctly when Hazelcast members are distributed equally in all nodes, so your Kubernetes cluster must orchestrate PODs equally.
  
- Note also that retrieving name of the node assumes that your container's hostname is the same as POD Name, which is almost always true. If you happen to change your hostname in the container, then please define the following environment variable:
+Note also that retrieving name of the node assumes that your container's hostname is the same as POD Name, which is almost always true. If you happen to change your hostname in the container, then please define the following environment variable:
  
  ```yaml
 env:
