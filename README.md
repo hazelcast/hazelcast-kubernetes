@@ -186,6 +186,8 @@ There are 2 properties to configure the plugin:
 **Note**: In this README, only YAML configurations are presented, however you can achieve exactly the same effect using 
 XML or Java-based configurations.
 
+## High Availability
+
 ### Zone Aware
 
 When using `ZONE_AWARE` configuration, backups are created in the other availability zone. This feature is available only for the Kubernetes API mode.
