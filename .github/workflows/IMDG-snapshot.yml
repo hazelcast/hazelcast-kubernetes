@@ -1,4 +1,4 @@
-name: build
+name: IMDG-Snapshot
 on:
   schedule:
     - cron: '0 3 * * *'
