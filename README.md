@@ -15,8 +15,8 @@ You can use it in your project deployed on Kubernetes in order to make the embed
 
 ## Embedded mode
 
-To use Hazelcast embedded in your application, you need to add the plugin dependency into your Maven/Gradle file. 
-Then, when you provide `hazelcast.yaml` as presented below or an equivalent Java-based configuration, your Hazelcast 
+To use Hazelcast embedded in your application, you need to add the plugin dependency into your Maven/Gradle file.
+Then, when you provide `hazelcast.yaml` as presented below or an equivalent Java-based configuration, your Hazelcast
 instances discover themselves automatically.
 
 #### Maven
@@ -75,8 +75,8 @@ spec:
   selector:
     app: APP-NAME
   ports:
-  - name: hazelcast
-    port: 5701
+    - name: hazelcast
+      port: 5701
 ```
 
 #### Hazelcast Configuration
@@ -97,24 +97,24 @@ hazelcast:
 
 ```java
 config.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(false);
-config.getNetworkConfig().getJoin().getKubernetesConfig().setEnabled(true)
-      .setProperty("namespace", "MY-KUBERNETES-NAMESPACE")
-      .setProperty("service-name", "MY-SERVICE-NAME");
+        config.getNetworkConfig().getJoin().getKubernetesConfig().setEnabled(true)
+        .setProperty("namespace", "MY-KUBERNETES-NAMESPACE")
+        .setProperty("service-name", "MY-SERVICE-NAME");
 ```
 
 There are several properties to configure the plugin, all of them are optional.
- * `namespace`: Kubernetes Namespace where Hazelcast is running; if not specified, the value is taken from the environment variables `KUBERNETES_NAMESPACE` or `OPENSHIFT_BUILD_NAMESPACE`. If those are not set, the namespace of the POD will be used (retrieved from `/var/run/secrets/kubernetes.io/serviceaccount/namespace`).
- * `service-name`: service name used to scan only PODs connected to the given service; if not specified, then all PODs in the namespace are checked
- * `service-label-name`, `service-label-value`: service label and value used to tag services that should form the Hazelcast cluster together
- * `pod-label-name`, `pod-label-value`: pod label and value used to tag pods that should form the Hazelcast cluster together
- * `resolve-not-ready-addresses`: if set to `true`, it checks also the addresses of PODs which are not ready; `true` by default
- * `use-node-name-as-external-address`: if set to `true`, uses the node name to connect to a `NodePort` service instead of looking up the external IP using the API; `false` by default
- * `kubernetes-api-retries`: number of retries in case of issues while connecting to Kubernetes API; defaults to `3` 
- * `kubernetes-master`: URL of Kubernetes Master; `https://kubernetes.default.svc` by default
- * `api-token`: API Token to Kubernetes API; if not specified, the value is taken from the file `/var/run/secrets/kubernetes.io/serviceaccount/token`
- * `ca-certificate`: CA Certificate for Kubernetes API; if not specified, the value is taken from the file `/var/run/secrets/kubernetes.io/serviceaccount/ca.crt`
- * `service-port`: endpoint port of the service; if specified with a value greater than `0`, it overrides the default; `0` by default
- 
+* `namespace`: Kubernetes Namespace where Hazelcast is running; if not specified, the value is taken from the environment variables `KUBERNETES_NAMESPACE` or `OPENSHIFT_BUILD_NAMESPACE`. If those are not set, the namespace of the POD will be used (retrieved from `/var/run/secrets/kubernetes.io/serviceaccount/namespace`).
+* `service-name`: service name used to scan only PODs connected to the given service; if not specified, then all PODs in the namespace are checked
+* `service-label-name`, `service-label-value`: service label and value used to tag services that should form the Hazelcast cluster together
+* `pod-label-name`, `pod-label-value`: pod label and value used to tag pods that should form the Hazelcast cluster together
+* `resolve-not-ready-addresses`: if set to `true`, it checks also the addresses of PODs which are not ready; `true` by default
+* `use-node-name-as-external-address`: if set to `true`, uses the node name to connect to a `NodePort` service instead of looking up the external IP using the API; `false` by default
+* `kubernetes-api-retries`: number of retries in case of issues while connecting to Kubernetes API; defaults to `3`
+* `kubernetes-master`: URL of Kubernetes Master; `https://kubernetes.default.svc` by default
+* `api-token`: API Token to Kubernetes API; if not specified, the value is taken from the file `/var/run/secrets/kubernetes.io/serviceaccount/token`
+* `ca-certificate`: CA Certificate for Kubernetes API; if not specified, the value is taken from the file `/var/run/secrets/kubernetes.io/serviceaccount/ca.crt`
+* `service-port`: endpoint port of the service; if specified with a value greater than `0`, it overrides the default; `0` by default
+
 You can use one of `service-name`,`service-label`(`service-label-name`, `service-label-value`) and `pod-label`(`pod-label-name`, `pod-label-value`) based discovery mechanisms, configuring two of them at once does not make sense.
 
 *Note*: If you don't specify any property at all, then the Hazelcast cluster is formed using all PODs in your current namespace. In other words, you can look at the properties as a grouping feature if you want to have multiple Hazelcast clusters in one namespace.
@@ -138,8 +138,8 @@ spec:
   selector:
     app: APP-NAME
   ports:
-  - name: hazelcast
-    port: 5701
+    - name: hazelcast
+      port: 5701
 ```
 
 #### Hazelcast Configuration
@@ -159,15 +159,15 @@ hazelcast:
 
 ```java
 config.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(false);
-config.getNetworkConfig().getJoin().getKubernetesConfig().setEnabled(true)
-      .setProperty("service-dns", "MY-SERVICE-DNS-NAME");
+        config.getNetworkConfig().getJoin().getKubernetesConfig().setEnabled(true)
+        .setProperty("service-dns", "MY-SERVICE-DNS-NAME");
 ```
 
 There are 2 properties to configure the plugin:
- * `service-dns` (required): service DNS, usually in the form of `SERVICE-NAME.NAMESPACE.svc.cluster.local`
- * `service-dns-timeout` (optional): custom time for how long the DNS Lookup is checked
+* `service-dns` (required): service DNS, usually in the form of `SERVICE-NAME.NAMESPACE.svc.cluster.local`
+* `service-dns-timeout` (optional): custom time for how long the DNS Lookup is checked
 
-**Note**: In this README, only YAML configurations are presented, however you can achieve exactly the same effect using 
+**Note**: In this README, only YAML configurations are presented, however you can achieve exactly the same effect using
 XML or Java-based configurations.
 
 ## High Availability
@@ -190,19 +190,19 @@ partition-group:
 
 ```java
 config.getPartitionGroupConfig()
-    .setEnabled(true)
-    .setGroupType(MemberGroupType.ZONE_AWARE);
+        .setEnabled(true)
+        .setGroupType(MemberGroupType.ZONE_AWARE);
 ```
 
 Note the following aspects of `ZONE_AWARE`:
- * Kubernetes cluster must provide the [well-known Kubernetes annotations](https://kubernetes.io/docs/reference/kubernetes-api/labels-annotations-taints/#failure-domainbetakubernetesiozone)
- * Retrieving Zone Name uses Kubernetes API, so RBAC must be configured as described [here](#granting-permissions-to-use-kubernetes-api)
- * `ZONE_AWARE` feature works correctly when Hazelcast members are distributed equally in all zones, so your Kubernetes cluster must orchestrate PODs equally
- 
- Note also that retrieving Zone Name assumes that your container's hostname is the same as POD Name, which is almost always true. If you happen to change your hostname in the container, then please define the following environment variable:
- 
+* Kubernetes cluster must provide the [well-known Kubernetes annotations](https://kubernetes.io/docs/reference/kubernetes-api/labels-annotations-taints/#failure-domainbetakubernetesiozone)
+* Retrieving Zone Name uses Kubernetes API, so RBAC must be configured as described [here](#granting-permissions-to-use-kubernetes-api)
+* `ZONE_AWARE` feature works correctly when Hazelcast members are distributed equally in all zones, so your Kubernetes cluster must orchestrate PODs equally
+
+Note also that retrieving Zone Name assumes that your container's hostname is the same as POD Name, which is almost always true. If you happen to change your hostname in the container, then please define the following environment variable:
+
  ```yaml
- 
+
 env:
   - name: POD_NAME
     valueFrom:
@@ -228,16 +228,16 @@ partition-group:
 
 ```java
 config.getPartitionGroupConfig()
-    .setEnabled(true)
-    .setGroupType(MemberGroupType.NODE_AWARE);
+        .setEnabled(true)
+        .setGroupType(MemberGroupType.NODE_AWARE);
 ```
 
 Note the following aspects of `NODE_AWARE`:
- * Retrieving name of the node uses Kubernetes API, so RBAC must be configured as described [here](#granting-permissions-to-use-kubernetes-api)
- * `NODE_AWARE` feature works correctly when Hazelcast members are distributed equally in all nodes, so your Kubernetes cluster must orchestrate PODs equally.
- 
+* Retrieving name of the node uses Kubernetes API, so RBAC must be configured as described [here](#granting-permissions-to-use-kubernetes-api)
+* `NODE_AWARE` feature works correctly when Hazelcast members are distributed equally in all nodes, so your Kubernetes cluster must orchestrate PODs equally.
+
 Note also that retrieving name of the node assumes that your container's hostname is the same as POD Name, which is almost always true. If you happen to change your hostname in the container, then please define the following environment variable:
- 
+
  ```yaml
 env:
   - name: POD_NAME
@@ -267,8 +267,8 @@ hazelcast-client:
 
 ```java
 clientConfig.getNetworkConfig().getKubernetesConfig().setEnabled(true)
-            .setProperty("namespace", "MY-KUBERNETES-NAMESPACE")
-            .setProperty("service-name", "MY-SERVICE-NAME");
+        .setProperty("namespace", "MY-KUBERNETES-NAMESPACE")
+        .setProperty("service-name", "MY-SERVICE-NAME");
 ```
 
 ### Outside Kubernetes Cluster
@@ -333,6 +333,10 @@ Additionally:
 
 All these features are already included in [Hazelcast Helm Charts](#helm-chart).
 
+## CP Subsystem
+
+Hazelcast CP Subsystem can be used safely in Kubernetes only if CP Subsystem Persistence is enabled (Enterprise Feature). Otherwise, a CP Subsystem Group may not recover after scaling the cluster or performing the rolling upgrade operation.
+
 ## Plugin Usages
 
 Apart from embedding Hazelcast in your application as described above, there are multiple other scenarios of how to use the Hazelcast Kubernetes plugin.
@@ -342,19 +346,19 @@ You can also check [Hazelcast Guides: Embedded Hazelcast on Kubernetes](https://
 
 This plugin is included in the official Hazelcast Docker images:
 
- * [hazelcast/hazelcast](https://hub.docker.com/r/hazelcast/hazelcast/)
- * [hazelcast/hazelcast-enterprise](https://hub.docker.com/r/hazelcast/hazelcast-enterprise)
- 
- Please check [Hazelcast Kubernetes Code Samples](https://github.com/hazelcast/hazelcast-code-samples/tree/master/hazelcast-integration/kubernetes) for the their usage.
+* [hazelcast/hazelcast](https://hub.docker.com/r/hazelcast/hazelcast/)
+* [hazelcast/hazelcast-enterprise](https://hub.docker.com/r/hazelcast/hazelcast-enterprise)
+
+Please check [Hazelcast Kubernetes Code Samples](https://github.com/hazelcast/hazelcast-code-samples/tree/master/hazelcast-integration/kubernetes) for the their usage.
 
 ### Helm Chart
 
 Hazelcast is available in the form of Helm Chart in a few versions:
 
- * [stable/hazelcast](https://github.com/helm/charts/tree/master/stable/hazelcast) - Hazelcast IMDG in the official Helm Chart repository
- * [hazelcast/hazelcast](https://github.com/hazelcast/charts/tree/master/stable/hazelcast) - Hazelcast IMDG with Management Center
- * [hazelcast/hazelcast-enterprise](https://github.com/hazelcast/charts/tree/master/stable/hazelcast-enterprise) - Hazelcast Enterprise with Management Center
- * [IBM/hazelcast-enterprise](https://github.com/IBM/charts/tree/master/community/hazelcast-enterprise) - Hazelcast Enterprise (with Management Center) dedicated for IBM ICP and IKS environments
+* [stable/hazelcast](https://github.com/helm/charts/tree/master/stable/hazelcast) - Hazelcast IMDG in the official Helm Chart repository
+* [hazelcast/hazelcast](https://github.com/hazelcast/charts/tree/master/stable/hazelcast) - Hazelcast IMDG with Management Center
+* [hazelcast/hazelcast-enterprise](https://github.com/hazelcast/charts/tree/master/stable/hazelcast-enterprise) - Hazelcast Enterprise with Management Center
+* [IBM/hazelcast-enterprise](https://github.com/IBM/charts/tree/master/community/hazelcast-enterprise) - Hazelcast Enterprise (with Management Center) dedicated for IBM ICP and IKS environments
 
 You can also check [Hazelcast Helm Charts at Helm Hub](https://hub.helm.sh/charts?q=hazelcast).
 
@@ -362,8 +366,8 @@ You can also check [Hazelcast Helm Charts at Helm Hub](https://hub.helm.sh/chart
 
 Hazelcast is available as Kubernetes/OpenShift Operator:
 
- * [hazelcast/hazelcast-operator](https://github.com/hazelcast/hazelcast-operator) - official Hazelcast Operator repository
- * [Operator Hub](https://operatorhub.io/operator/hazelcast-operator) - official Hazelcast Operator published at Operator Hub
+* [hazelcast/hazelcast-operator](https://github.com/hazelcast/hazelcast-operator) - official Hazelcast Operator repository
+* [Operator Hub](https://operatorhub.io/operator/hazelcast-operator) - official Hazelcast Operator published at Operator Hub
 
 ### Red Hat OpenShift
 
