@@ -40,7 +40,7 @@ import java.util.concurrent.TimeoutException;
 final class DnsEndpointResolver
         extends HazelcastKubernetesDiscoveryStrategy.EndpointResolver {
     // executor service for dns lookup calls
-    private final static ExecutorService dnsLookupService = Executors.newCachedThreadPool();
+    private static final ExecutorService DNS_LOOKUP_SERVICE = Executors.newCachedThreadPool();
 
     private final String serviceDns;
     private final int port;
@@ -66,7 +66,7 @@ final class DnsEndpointResolver
             throws UnknownHostException, InterruptedException, ExecutionException, TimeoutException {
         Set<String> addresses = new HashSet<String>();
 
-        Future<InetAddress[]> future = dnsLookupService.submit(new Callable<InetAddress[]>() {
+        Future<InetAddress[]> future = DNS_LOOKUP_SERVICE.submit(new Callable<InetAddress[]>() {
             @Override
             public InetAddress[] call() throws Exception {
                 return getAllInetAddresses();
