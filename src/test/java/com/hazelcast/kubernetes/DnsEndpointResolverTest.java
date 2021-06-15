@@ -22,6 +22,8 @@ import com.hazelcast.spi.discovery.DiscoveryNode;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -33,7 +35,11 @@ import java.util.List;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
@@ -43,6 +49,7 @@ public class DnsEndpointResolverTest {
 
     private static final String SERVICE_DNS = "my-release-hazelcast.default.svc.cluster.local";
     private static final int DEFAULT_SERVICE_DNS_TIMEOUT_SECONDS = 5;
+    private static final int TEST_DNS_TIMEOUT_SECONDS = 1;
     private static final int UNSET_PORT = 0;
     private static final int DEFAULT_PORT = 5701;
     private static final int CUSTOM_PORT = 5702;
@@ -97,14 +104,17 @@ public class DnsEndpointResolverTest {
     public void resolveException()
             throws Exception {
         // given
+        ILogger logger = mock(ILogger.class);
     	PowerMockito.when(InetAddress.getAllByName(SERVICE_DNS)).thenThrow(new UnknownHostException());
-        DnsEndpointResolver dnsEndpointResolver = new DnsEndpointResolver(LOGGER, SERVICE_DNS, UNSET_PORT, DEFAULT_SERVICE_DNS_TIMEOUT_SECONDS);
+        DnsEndpointResolver dnsEndpointResolver = new DnsEndpointResolver(logger, SERVICE_DNS, UNSET_PORT, DEFAULT_SERVICE_DNS_TIMEOUT_SECONDS);
 
         // when
         List<DiscoveryNode> result = dnsEndpointResolver.resolve();
 
         // then
         assertEquals(0, result.size());
+        verify(logger).warning(String.format("DNS lookup for serviceDns '%s' failed: unknown host", SERVICE_DNS));
+        verify(logger, never()).warning(anyString(), any(Throwable.class));
     }
 
     @Test
@@ -119,6 +129,33 @@ public class DnsEndpointResolverTest {
 
         // then
         assertEquals(0, result.size());
+    }
+
+    @Test
+    public void resolveTimeout()
+            throws Exception {
+        // given
+        ILogger logger = mock(ILogger.class);
+        PowerMockito.when(InetAddress.getAllByName(SERVICE_DNS)).then(waitAndAnswer());
+        DnsEndpointResolver dnsEndpointResolver = new DnsEndpointResolver(logger, SERVICE_DNS, UNSET_PORT, TEST_DNS_TIMEOUT_SECONDS);
+
+        // when
+        List<DiscoveryNode> result = dnsEndpointResolver.resolve();
+
+        // then
+        assertEquals(0, result.size());
+        verify(logger).warning(String.format("DNS lookup for serviceDns '%s' failed: DNS resolution timeout", SERVICE_DNS));
+        verify(logger, never()).warning(anyString(), any(Throwable.class));
+    }
+
+    private static Answer<InetAddress[]> waitAndAnswer() {
+        return new Answer<InetAddress[]>() {
+            @Override
+            public InetAddress[] answer(InvocationOnMock invocation) throws Throwable {
+                Thread.sleep(TEST_DNS_TIMEOUT_SECONDS * 5 * 1000);
+                return new InetAddress[0];
+            }
+        };
     }
 
     private static Set<?> setOf(Object... objects) {

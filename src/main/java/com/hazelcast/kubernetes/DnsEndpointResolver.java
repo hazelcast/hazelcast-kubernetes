@@ -85,6 +85,12 @@ final class DnsEndpointResolver
                     logger.finest("Found node service with address: " + address);
                 }
             }
+        } catch (ExecutionException e) {
+            if (e.getCause() instanceof UnknownHostException) {
+                throw (UnknownHostException) e.getCause();
+            } else {
+                throw e;
+            }
         } catch (TimeoutException e) {
             // cancel DNS lookup
             future.cancel(true);
