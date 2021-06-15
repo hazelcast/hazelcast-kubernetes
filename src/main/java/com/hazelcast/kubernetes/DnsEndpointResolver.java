@@ -56,6 +56,12 @@ final class DnsEndpointResolver
     List<DiscoveryNode> resolve() {
         try {
             return lookup();
+        } catch (TimeoutException e) {
+            logger.warning(String.format("DNS lookup for serviceDns '%s' failed: DNS resolution timeout", serviceDns));
+            return Collections.emptyList();
+        } catch (UnknownHostException e) {
+            logger.warning(String.format("DNS lookup for serviceDns '%s' failed: unknown host", serviceDns));
+            return Collections.emptyList();
         } catch (Exception e) {
             logger.warning(String.format("DNS lookup for serviceDns '%s' failed", serviceDns), e);
             return Collections.emptyList();
