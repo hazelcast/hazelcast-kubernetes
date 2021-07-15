@@ -29,22 +29,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
-import static com.hazelcast.kubernetes.KubernetesProperties.KUBERNETES_API_RETIRES;
-import static com.hazelcast.kubernetes.KubernetesProperties.KUBERNETES_API_TOKEN;
-import static com.hazelcast.kubernetes.KubernetesProperties.KUBERNETES_CA_CERTIFICATE;
-import static com.hazelcast.kubernetes.KubernetesProperties.KUBERNETES_MASTER_URL;
-import static com.hazelcast.kubernetes.KubernetesProperties.KUBERNETES_SYSTEM_PREFIX;
-import static com.hazelcast.kubernetes.KubernetesProperties.NAMESPACE;
-import static com.hazelcast.kubernetes.KubernetesProperties.POD_LABEL_NAME;
-import static com.hazelcast.kubernetes.KubernetesProperties.POD_LABEL_VALUE;
-import static com.hazelcast.kubernetes.KubernetesProperties.RESOLVE_NOT_READY_ADDRESSES;
-import static com.hazelcast.kubernetes.KubernetesProperties.SERVICE_DNS;
-import static com.hazelcast.kubernetes.KubernetesProperties.SERVICE_DNS_TIMEOUT;
-import static com.hazelcast.kubernetes.KubernetesProperties.SERVICE_LABEL_NAME;
-import static com.hazelcast.kubernetes.KubernetesProperties.SERVICE_LABEL_VALUE;
-import static com.hazelcast.kubernetes.KubernetesProperties.SERVICE_NAME;
-import static com.hazelcast.kubernetes.KubernetesProperties.SERVICE_PORT;
-import static com.hazelcast.kubernetes.KubernetesProperties.USE_NODE_NAME_AS_EXTERNAL_ADDRESS;
+import static com.hazelcast.kubernetes.KubernetesProperties.*;
 
 /**
  * Responsible for fetching, parsing, and validating Hazelcast Kubernetes Discovery Strategy input properties.
@@ -66,6 +51,9 @@ final class KubernetesConfig {
     private final String namespace;
     private final String podLabelName;
     private final String podLabelValue;
+    private final boolean matchServicePodNames;
+    private final String lbLabelName;
+    private final String lbLabelValue;
     private final boolean resolveNotReadyAddresses;
     private final boolean useNodeNameAsExternalAddress;
     private final int kubernetesApiRetries;
@@ -85,6 +73,9 @@ final class KubernetesConfig {
         this.serviceLabelValue = getOrDefault(properties, KUBERNETES_SYSTEM_PREFIX, SERVICE_LABEL_VALUE, "true");
         this.podLabelName = getOrNull(properties, KUBERNETES_SYSTEM_PREFIX, POD_LABEL_NAME);
         this.podLabelValue = getOrNull(properties, KUBERNETES_SYSTEM_PREFIX, POD_LABEL_VALUE);
+        this.matchServicePodNames = getOrDefault(properties, KUBERNETES_SYSTEM_PREFIX, MATCH_SERVICE_POD_NAMES, true);
+        this.lbLabelName = getOrNull(properties, KUBERNETES_SYSTEM_PREFIX, LB_LABEL_NAME);
+        this.lbLabelValue = getOrNull(properties, KUBERNETES_SYSTEM_PREFIX, LB_LABEL_VALUE);
         this.resolveNotReadyAddresses = getOrDefault(properties, KUBERNETES_SYSTEM_PREFIX, RESOLVE_NOT_READY_ADDRESSES, true);
         this.useNodeNameAsExternalAddress
                 = getOrDefault(properties, KUBERNETES_SYSTEM_PREFIX, USE_NODE_NAME_AS_EXTERNAL_ADDRESS, false);
@@ -295,6 +286,16 @@ final class KubernetesConfig {
         return podLabelValue;
     }
 
+    public boolean getMatchServicePodNames() { return matchServicePodNames; }
+
+    public String getLbLabelName() {
+        return lbLabelName;
+    }
+
+    public String getLbLabelValue() {
+        return lbLabelValue;
+    }
+
     boolean isResolveNotReadyAddresses() {
         return resolveNotReadyAddresses;
     }
@@ -335,6 +336,9 @@ final class KubernetesConfig {
                 + "namespace: " + namespace + ", "
                 + "pod-label: " + podLabelName + ", "
                 + "pod-label-value: " + podLabelValue + ", "
+				+ "match-service-pod-names: " + matchServicePodNames + ", "
+                + "lb-label: " + lbLabelName + ", "
+                + "lb-label-value: " + lbLabelValue + ", "
                 + "resolve-not-ready-addresses: " + resolveNotReadyAddresses + ", "
                 + "use-node-name-as-external-address: " + useNodeNameAsExternalAddress + ", "
                 + "kubernetes-api-retries: " + kubernetesApiRetries + ", "
