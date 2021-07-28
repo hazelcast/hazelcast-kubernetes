@@ -1,3 +1,5 @@
+#### **DEPRECATED:** `hazelcast-kubernetes` plugin has been merged with [`hazelcast`](https://github.com/hazelcast/hazelcast)!
+
 # Hazelcast Discovery Plugin for Kubernetes
 
 This repository contains a plugin which provides the automatic Hazelcast member discovery in the Kubernetes environment.
