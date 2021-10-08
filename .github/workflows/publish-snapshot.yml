@@ -20,6 +20,7 @@ jobs:
         with:
           java-version: ${{ matrix.java }}
           architecture: ${{ matrix.architecture }}
+          distribution: 'zulu'
 
       - uses: actions/cache@v2.1.6
         with:
